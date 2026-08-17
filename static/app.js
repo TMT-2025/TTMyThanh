@@ -1,0 +1,673 @@
+/**
+ * Client-side script for Cao Dai Funeral Calendar Calculator
+ * Manages UI interactions, live updates, and DOCX export requests
+ */
+
+const BTRE_DATA = {
+  "Thành phố Bến Tre": [
+    "Phường Phú Khương",
+    "Phường Phú Tân",
+    "Phường 8",
+    "Phường 6",
+    "Phường An Hội",
+    "Phường 7",
+    "Xã Sơn Đông",
+    "Xã Phú Hưng",
+    "Xã Bình Phú",
+    "Xã Mỹ Thạnh An",
+    "Xã Nhơn Thạnh",
+    "Xã Phú Nhuận"
+  ],
+  "Huyện Châu Thành": [
+    "Xã Tân Thạch",
+    "Xã Qưới Sơn",
+    "Thị trấn Châu Thành",
+    "Xã Giao Long",
+    "Xã Phú Túc",
+    "Xã Phú Đức",
+    "Xã An Phước",
+    "Xã Tam Phước",
+    "Xã Thành Triệu",
+    "Xã Tân Phú",
+    "Xã Quới Thành",
+    "Xã Phước Thạnh",
+    "Xã Tiên Long",
+    "Xã Tường Đa",
+    "Xã Hữu Định",
+    "Thị trấn Tiên Thủy"
+  ],
+  "Huyện Chợ Lách": [
+    "Thị trấn Chợ Lách",
+    "Xã Phú Phụng",
+    "Xã Sơn Định",
+    "Xã Vĩnh Bình",
+    "Xã Hòa Nghĩa",
+    "Xã Long Thới",
+    "Xã Phú Sơn",
+    "Xã Tân Thiềng",
+    "Xã Vĩnh Thành",
+    "Xã Vĩnh Hòa",
+    "Xã Hưng Khánh Trung B"
+  ],
+  "Huyện Mỏ Cày Nam": [
+    "Thị trấn Mỏ Cày",
+    "Xã Định Thủy",
+    "Xã Đa Phước Hội",
+    "Xã Tân Hội",
+    "Xã Phước Hiệp",
+    "Xã Bình Khánh",
+    "Xã An Thạnh",
+    "Xã An Định",
+    "Xã Thành Thới B",
+    "Xã Tân Trung",
+    "Xã An Thới",
+    "Xã Thành Thới A",
+    "Xã Minh Đức",
+    "Xã Ngãi Đăng",
+    "Xã Cẩm Sơn",
+    "Xã Hương Mỹ"
+  ],
+  "Huyện Giồng Trôm": [
+    "Thị trấn Giồng Trôm",
+    "Xã Phong Nẫm",
+    "Xã Mỹ Thạnh",
+    "Xã Châu Hòa",
+    "Xã Lương Hòa",
+    "Xã Lương Quới",
+    "Xã Lương Phú",
+    "Xã Châu Bình",
+    "Xã Thuận Điền",
+    "Xã Sơn Phú",
+    "Xã Bình Hoà",
+    "Xã Phước Long",
+    "Xã Hưng Phong",
+    "Xã Long Mỹ",
+    "Xã Tân Hào",
+    "Xã Bình Thành",
+    "Xã Tân Thanh",
+    "Xã Tân Lợi Thạnh",
+    "Xã Thạnh Phú Đông",
+    "Xã Hưng Nhượng",
+    "Xã Hưng Lễ"
+  ],
+  "Huyện Bình Đại": [
+    "Thị trấn Bình Đại",
+    "Xã Tam Hiệp",
+    "Xã Long Định",
+    "Xã Long Hòa",
+    "Xã Phú Thuận",
+    "Xã Vang Quới Tây",
+    "Xã Vang Quới Đông",
+    "Xã Châu Hưng",
+    "Xã Lộc Thuận",
+    "Xã Định Trung",
+    "Xã Thới Lai",
+    "Xã Bình Thới",
+    "Xã Phú Long",
+    "Xã Bình Thắng",
+    "Xã Thạnh Trị",
+    "Xã Đại Hòa Lộc",
+    "Xã Thừa Đức",
+    "Xã Thạnh Phước",
+    "Xã Thới Thuận"
+  ],
+  "Huyện Ba Tri": [
+    "Thị trấn Ba Tri",
+    "Xã Mỹ Hòa",
+    "Xã Tân Xuân",
+    "Xã Mỹ Chánh",
+    "Xã Bảo Thạnh",
+    "Xã An Phú Trung",
+    "Xã Mỹ Thạnh",
+    "Xã Mỹ Nhơn",
+    "Xã Phước Ngãi",
+    "Xã An Ngãi Trung",
+    "Xã Phú Lễ",
+    "Xã An Bình Tây",
+    "Xã Bảo Thuận",
+    "Xã Tân Hưng",
+    "Xã An Ngãi Tây",
+    "Xã An Hiệp",
+    "Xã Vĩnh Hòa",
+    "Xã Tân Thủy",
+    "Xã Vĩnh An",
+    "Xã An Đức",
+    "Xã An Hòa Tây",
+    "Thị trấn Tiệm Tôm"
+  ],
+  "Huyện Thạnh Phú": [
+    "Thị trấn Thạnh Phú",
+    "Xã Phú Khánh",
+    "Xã Đại Điền",
+    "Xã Quới Điền",
+    "Xã Tân Phong",
+    "Xã Mỹ Hưng",
+    "Xã An Thạnh",
+    "Xã Thới Thạnh",
+    "Xã Hòa Lợi",
+    "Xã An Điền",
+    "Xã Bình Thạnh",
+    "Xã An Thuận",
+    "Xã An Quy",
+    "Xã Thạnh Hải",
+    "Xã An Nhơn",
+    "Xã Giao Thạnh",
+    "Xã Thạnh Phong",
+    "Xã Mỹ An"
+  ],
+  "Huyện Mỏ Cày Bắc": [
+    "Xã Phú Mỹ",
+    "Xã Hưng Khánh Trung A",
+    "Xã Thanh Tân",
+    "Xã Thạnh Ngãi",
+    "Xã Tân Phú Tây",
+    "Thị trấn Phước Mỹ Trung",
+    "Xã Tân Thành Bình",
+    "Xã Thành An",
+    "Xã Hòa Lộc",
+    "Xã Tân Thanh Tây",
+    "Xã Tân Bình",
+    "Xã Nhuận Phú Tân",
+    "Xã Khánh Thạnh Tân"
+  ]
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    // UI Elements
+    const hoTenInput = document.getElementById("hoTen");
+    const gioiTinhSelect = document.getElementById("gioiTinh");
+    const phamDaoSelect = document.getElementById("phamDao");
+    const gioMatSelect = document.getElementById("gioMat");
+    const ngayAlSelect = document.getElementById("ngayMatAl");
+    const thangAlSelect = document.getElementById("thangMatAl");
+    const namAlSelect = document.getElementById("namMatAl");
+    const nhuanCheckbox = document.getElementById("thangMatAlNhuan");
+    const sinhNamSelect = document.getElementById("sinhNam");
+    const tieuDeXungSelect = document.getElementById("tieuDeXung");
+    const ageDisplayBox = document.getElementById("age-display");
+
+    // Nơi sinh elements
+    const noiSinhHuyenSelect = document.getElementById("noiSinhHuyen");
+    const noiSinhXaSelect = document.getElementById("noiSinhXa");
+
+    // Sớ Cầu Siêu elements
+    const soTuanCuuSelect = document.getElementById("soTuanCuu");
+    const noiCungSelect = document.getElementById("noiCung");
+    const banCungSelect = document.getElementById("banCung");
+    const btnExportCauSieu = document.getElementById("btn-export-causieu");
+    
+    // Preview Labels
+    const lblSolarEquivalent = document.getElementById("solar-equivalent-date");
+    const lblPreviewBadge = document.getElementById("preview-title-badge");
+    const lblNgayAl = document.getElementById("lblNgayAl");
+    const lblThangAl = document.getElementById("lblThangAl");
+    const lblNamAl = document.getElementById("lblNamAl");
+    const lblCanChiAl = document.getElementById("lblCanChiAl");
+    const lblGioMat = document.getElementById("lblGioMat");
+    const lblNgayDl = document.getElementById("lblNgayDl");
+    const lblThangDl = document.getElementById("lblThangDl");
+    const lblNamDl = document.getElementById("lblNamDl");
+    
+    const previewTableBody = document.getElementById("preview-table-body");
+    const btnExport = document.getElementById("btn-export");
+    const loadingOverlay = document.getElementById("loading-overlay");
+
+    // Initialize Dropdowns
+    // Days 1 to 30
+    for (let d = 1; d <= 30; d++) {
+        const opt = document.createElement("option");
+        opt.value = d;
+        opt.textContent = String(d).padStart(2, '0');
+        if (d === 15) opt.selected = true; // Default 15th
+        ngayAlSelect.appendChild(opt);
+    }
+
+    // Months 1 to 12
+    for (let m = 1; m <= 12; m++) {
+        const opt = document.createElement("option");
+        opt.value = m;
+        opt.textContent = String(m).padStart(2, '0');
+        if (m === 7) opt.selected = true; // Default 7th month
+        thangAlSelect.appendChild(opt);
+    }
+
+    // Death Years (from 1980 to 2080, default to 2026)
+    const currentYear = 2026;
+    for (let y = 1980; y <= 2080; y++) {
+        const opt = document.createElement("option");
+        opt.value = y;
+        opt.textContent = `${y} (${CaoDaiCalendar.getCanChiYear(y)})`;
+        if (y === currentYear) opt.selected = true;
+        namAlSelect.appendChild(opt);
+    }
+
+    // Birth Years (from 1900 to 2080, default to 1966)
+    for (let y = 1900; y <= 2080; y++) {
+        const opt = document.createElement("option");
+        opt.value = y;
+        opt.textContent = `${y} (${CaoDaiCalendar.getCanChiYear(y)})`;
+        if (y === 1966) opt.selected = true;
+        sinhNamSelect.appendChild(opt);
+    }
+
+    // Populate Huyện nơi sinh
+    for (const huyen in BTRE_DATA) {
+        const opt = document.createElement("option");
+        opt.value = huyen;
+        opt.textContent = huyen;
+        if (huyen === "Huyện Giồng Trôm") {
+            opt.selected = true;
+        }
+        noiSinhHuyenSelect.appendChild(opt);
+    }
+
+    // Populate Xã nơi sinh based on selected Huyện
+    function updateNoiSinhXa(defaultXa = null) {
+        const huyen = noiSinhHuyenSelect.value;
+        const xas = BTRE_DATA[huyen] || [];
+        noiSinhXaSelect.innerHTML = "";
+        xas.forEach(xa => {
+            const opt = document.createElement("option");
+            opt.value = xa;
+            opt.textContent = xa;
+            if (defaultXa && xa === defaultXa) {
+                opt.selected = true;
+            } else if (!defaultXa && xa === "Xã Mỹ Thạnh") {
+                opt.selected = true;
+            }
+            noiSinhXaSelect.appendChild(opt);
+        });
+    }
+
+    // Initial population for Xã nơi sinh
+    updateNoiSinhXa("Xã Mỹ Thạnh");
+
+    // Recalculate function
+    let currentCalculation = null;
+    let currentAge = 0;
+    let currentBirthCanChi = "";
+    let currentAgeTerm = "Hưởng thọ";
+    let lastCalculatedAge = null;
+
+    function runRecalculation() {
+        const name = hoTenInput.value.trim() || "Chưa nhập họ tên";
+        const title = phamDaoSelect.value;
+        const gioMat = gioMatSelect.value;
+        const lDay = parseInt(ngayAlSelect.value);
+        const lMonth = parseInt(thangAlSelect.value);
+        const lYear = parseInt(namAlSelect.value);
+        const lLeap = nhuanCheckbox.checked ? 1 : 0;
+        const birthYear = parseInt(sinhNamSelect.value);
+
+        // Recalculate Calendar dates
+        const results = CaoDaiCalendar.calculateCaoDaiDates(lDay, lMonth, lYear, lLeap);
+        currentCalculation = results;
+
+        // Calculate Age (Newborn is 1 year old)
+        currentAge = lYear - birthYear + 1;
+        currentBirthCanChi = CaoDaiCalendar.getCanChiYear(birthYear);
+
+        // Auto-detect term based on age if the age changes
+        if (currentAge !== lastCalculatedAge && currentAge >= 1) {
+            let calculatedTerm = "Hưởng thọ";
+            if (currentAge < 61) {
+                calculatedTerm = currentAge < 18 ? "Hưởng linh" : "Hưởng dương";
+            } else if (currentAge >= 61 && currentAge <= 70) {
+                calculatedTerm = "Hưởng thọ";
+            } else if (currentAge >= 71 && currentAge <= 80) {
+                calculatedTerm = "Hưởng trung thọ";
+            } else if (currentAge >= 81 && currentAge <= 90) {
+                calculatedTerm = "Hưởng thượng thọ";
+            } else if (currentAge >= 91) {
+                calculatedTerm = "Hưởng mạo";
+            }
+            tieuDeXungSelect.value = calculatedTerm;
+            lastCalculatedAge = currentAge;
+        }
+
+        // Read value from selector (allows manual override)
+        currentAgeTerm = tieuDeXungSelect.value;
+
+        // Update Age Display Box
+        if (currentAge >= 1) {
+            ageDisplayBox.textContent = `${currentBirthCanChi} — ${currentAge} tuổi`;
+        } else {
+            ageDisplayBox.textContent = `${currentBirthCanChi} — Năm sinh không hợp lệ`;
+        }
+
+        // Update Preview Labels
+        lblSolarEquivalent.textContent = `${results.deathSolarStr} (${results.deathSolarDayOfWeek})`;
+        
+        let previewTitle = `${title} : ${name}`;
+        if (currentAge >= 1) {
+            previewTitle += ` (Sinh năm ${birthYear}-${currentBirthCanChi}, ${currentAgeTerm} ${currentAge} tuổi)`;
+        }
+        lblPreviewBadge.textContent = previewTitle;
+        
+        lblNgayAl.textContent = String(lDay).padStart(2, '0');
+        lblThangAl.textContent = String(lMonth).padStart(2, '0') + (lLeap ? " (Nhuận)" : "");
+        lblNamAl.textContent = lYear;
+        lblCanChiAl.textContent = results.lunarYearCanChi;
+        lblGioMat.textContent = gioMat;
+
+        // Solar death details
+        const [sDay, sMonth, sYear] = results.deathSolar;
+        lblNgayDl.textContent = String(sDay).padStart(2, '0');
+        lblThangDl.textContent = String(sMonth).padStart(2, '0');
+        lblNamDl.textContent = sYear;
+
+        // Populate Table View
+        previewTableBody.innerHTML = "";
+        results.table.forEach(item => {
+            const tr = document.createElement("tr");
+            
+            const tdEvent = document.createElement("td");
+            tdEvent.textContent = item.event;
+            tr.appendChild(tdEvent);
+
+            const tdDayOfWeek = document.createElement("td");
+            tdDayOfWeek.textContent = item.dayOfWeek;
+            tr.appendChild(tdDayOfWeek);
+
+            const tdAl = document.createElement("td");
+            tdAl.textContent = item.dateAl;
+            tr.appendChild(tdAl);
+
+            const tdDl = document.createElement("td");
+            tdDl.textContent = item.dateDl;
+            tr.appendChild(tdDl);
+
+            previewTableBody.appendChild(tr);
+        });
+    }
+
+    // Set up Event Listeners
+    hoTenInput.addEventListener("input", runRecalculation);
+    gioiTinhSelect.addEventListener("change", runRecalculation);
+    phamDaoSelect.addEventListener("change", runRecalculation);
+    gioMatSelect.addEventListener("change", runRecalculation);
+    ngayAlSelect.addEventListener("change", runRecalculation);
+    thangAlSelect.addEventListener("change", runRecalculation);
+    namAlSelect.addEventListener("change", runRecalculation);
+    nhuanCheckbox.addEventListener("change", runRecalculation);
+    sinhNamSelect.addEventListener("change", runRecalculation);
+    tieuDeXungSelect.addEventListener("change", runRecalculation);
+
+    noiSinhHuyenSelect.addEventListener("change", () => {
+        updateNoiSinhXa();
+        runRecalculation();
+    });
+    noiSinhXaSelect.addEventListener("change", runRecalculation);
+
+    // Export DOCX handler
+    btnExport.addEventListener("click", () => {
+        if (!hoTenInput.value.trim()) {
+            alert("Vui lòng nhập họ tên người mất!");
+            hoTenInput.focus();
+            return;
+        }
+
+        if (!currentCalculation) {
+            alert("Không có dữ liệu tính toán hợp lệ!");
+            return;
+        }
+
+        loadingOverlay.classList.remove("hidden");
+
+        const postData = {
+            hoTen: hoTenInput.value.trim(),
+            phamDao: phamDaoSelect.value,
+            gioMat: gioMatSelect.value,
+            ngayMatAl: `${String(ngayAlSelect.value).padStart(2, '0')}/${String(thangAlSelect.value).padStart(2, '0')}/${namAlSelect.value} (ÂL)${nhuanCheckbox.checked ? ' (Nhuận)' : ''}`,
+            lunarYearCanChi: currentCalculation.lunarYearCanChi,
+            ngayMatDl: `${currentCalculation.deathSolarStr} (DL)`,
+            tuoiMat: currentAge >= 1 ? currentAge : 0,
+            namSinhAl: `${parseInt(sinhNamSelect.value)}-${currentBirthCanChi}`,
+            tuoiTerm: currentAgeTerm,
+            tableData: currentCalculation.table
+        };
+
+        fetch("/generate", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(postData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Lỗi máy chủ khi tạo file Word");
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            // Download file
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.style.display = "none";
+            a.href = url;
+            a.download = "KetQuaTuanCuu.docx";
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        })
+        .catch(error => {
+            console.error(error);
+            alert("Đã xảy ra lỗi khi tạo file Word: " + error.message);
+        })
+        .finally(() => {
+            loadingOverlay.classList.add("hidden");
+        });
+    });
+
+    // Export Sớ Cầu Siêu handler
+    btnExportCauSieu.addEventListener("click", () => {
+        if (!currentCalculation) {
+            alert("Vui lòng thực hiện tính toán lịch trước!");
+            return;
+        }
+
+        const selectedEvent = soTuanCuuSelect.value;
+        const noiCung = noiCungSelect.value;
+        const banCung = banCungSelect.value;
+
+        // Find cúng date from calculated table
+        const row = currentCalculation.table.find(item => item.event.startsWith(selectedEvent) || item.event.includes(selectedEvent));
+        if (!row) {
+            alert("Không tìm thấy ngày cúng cho tuần cửu đã chọn!");
+            return;
+        }
+
+        // Parse dateAl string
+        const parts = row.dateAl.split('/');
+        if (parts.length < 3) {
+            alert("Ngày âm lịch cúng không hợp lệ!");
+            return;
+        }
+
+        const day = parseInt(parts[0]);
+        const month = parseInt(parts[1]);
+        const rest = parts[2];
+        const leap = rest.includes('(Nhuận)');
+        const year = rest.replace('(Nhuận)', '').trim();
+
+        // Translate to Sino-Vietnamese
+        const LUNAR_MONTH_SINO = {
+            1: "Chánh ngoạt", 2: "Nhị ngoạt", 3: "Tam ngoạt", 4: "Tứ ngoạt", 5: "Ngũ ngoạt", 6: "Lục ngoạt",
+            7: "Thất ngoạt", 8: "Bát ngoạt", 9: "Cửu ngoạt", 10: "Thập ngoạt", 11: "Thập Nhứt ngoạt", 12: "Thập Nhị ngoạt"
+        };
+
+        const LUNAR_DAY_SINO = {
+            1: "sơ nhất nhựt", 2: "sơ nhị nhựt", 3: "sơ tam nhựt", 4: "sơ tứ nhựt", 5: "sơ ngũ nhựt",
+            6: "sơ lục nhựt", 7: "sơ thất nhựt", 8: "sơ bát nhựt", 9: "sơ cửu nhựt", 10: "Thập nhựt",
+            11: "Thập nhứt nhựt", 12: "Thập nhị nhựt", 13: "Thập tam nhựt", 14: "Thập tứ nhựt", 15: "Thập ngũ nhựt",
+            16: "Thập lục nhựt", 17: "Thập thất nhựt", 18: "Thập bát nhựt", 19: "Thập cửu nhựt", 20: "Nhị thập nhựt",
+            21: "Nhị thập nhứt nhựt", 22: "Nhị thập nhị nhựt", 23: "Nhị thập tam nhựt", 24: "Nhị thập  tứ nhựt", 25: "Nhị thập ngũ nhựt",
+            26: "Nhị thập lục nhựt", 27: "Nhị thập thất nhựt", 28: "Nhị thập bát nhựt", 29: "Nhị thập cửu nhựt", 30: "Tam thập nhựt"
+        };
+
+        const daySino = LUNAR_DAY_SINO[day] || `${day} nhựt`;
+        let monthSino = LUNAR_MONTH_SINO[month] || `${month} ngoạt`;
+        if (leap) {
+            monthSino = "Nhuận " + monthSino;
+        }
+
+        // Determine value for (6) and filename suffix
+        let tuanCuuSino = "";
+        let filenameSuffix = "";
+
+        if (selectedEvent.includes("Nhứt cửu")) {
+            tuanCuuSino = "nhứt cửu";
+            filenameSuffix = "nhứt cửu";
+        } else if (selectedEvent.includes("Nhị cửu")) {
+            tuanCuuSino = "nhị cửu";
+            filenameSuffix = "nhị cửu";
+        } else if (selectedEvent.includes("Tam cửu")) {
+            tuanCuuSino = "tam cửu";
+            filenameSuffix = "tam cửu";
+        } else if (selectedEvent.includes("Tứ cửu")) {
+            tuanCuuSino = "tứ cửu";
+            filenameSuffix = "tứ cửu";
+        } else if (selectedEvent.includes("Ngũ cửu")) {
+            tuanCuuSino = "ngũ cửu";
+            filenameSuffix = "ngũ cửu";
+        } else if (selectedEvent.includes("Lục cửu")) {
+            tuanCuuSino = "lục cửu";
+            filenameSuffix = "lục cửu";
+        } else if (selectedEvent.includes("Thất cửu")) {
+            tuanCuuSino = "thất cửu";
+            filenameSuffix = "thất cửu";
+        } else if (selectedEvent.includes("Bát cửu")) {
+            tuanCuuSino = "bát cửu";
+            filenameSuffix = "bát cửu";
+        } else if (selectedEvent.includes("Cửu cửu")) {
+            tuanCuuSino = "chung cửu";
+            filenameSuffix = "chung cửu";
+        } else if (selectedEvent.includes("Tiểu tường")) {
+            tuanCuuSino = "tiểu tường";
+            filenameSuffix = "Tiểu tường";
+        } else if (selectedEvent.includes("Đại tường")) {
+            tuanCuuSino = "đại tường";
+            filenameSuffix = "Đại tường";
+        }
+
+        const nameVal = hoTenInput.value.trim() || "Chưa nhập họ tên";
+        const phamDao = phamDaoSelect.value;
+        const gioiTinh = gioiTinhSelect.value;
+        const nameParts = nameVal.split(/\s+/);
+        const lastName = nameParts[nameParts.length - 1] || "";
+
+        let val7 = nameVal;
+        if (phamDao === "Lễ Sanh") {
+            if (gioiTinh === "Nữ") {
+                val7 = `Hương ${lastName}`;
+            } else {
+                val7 = `………..${lastName} Thanh`;
+            }
+        }
+
+        function toSinoVietnamese(num) {
+            const units = {
+                1: "Nhứt", 2: "Nhị", 3: "Tam", 4: "Tứ", 5: "Ngũ",
+                6: "Lục", 7: "Thất", 8: "Bát", 9: "Cửu"
+            };
+            if (num < 10) return units[num] || "";
+            if (num === 10) return "Thập";
+            if (num < 20) return "Thập " + units[num - 10];
+            if (num < 100) {
+                const ten = Math.floor(num / 10);
+                const unit = num % 10;
+                const tenStr = units[ten] + " Thập";
+                return unit === 0 ? tenStr : tenStr + " " + units[unit];
+            }
+            if (num === 100) return "Bá";
+            if (num < 110) return "Bá " + units[num % 10];
+            return num.toString();
+        }
+
+        const val8 = nameVal;
+        const val9 = toSinoVietnamese(currentAge);
+
+        // Birthplace details
+        const huyenSelected = noiSinhHuyenSelect.value;
+        const xaSelected = noiSinhXaSelect.value;
+
+        let huyenName = huyenSelected;
+        let huyenType = "huyện";
+        if (huyenSelected.startsWith("Huyện ")) {
+            huyenName = huyenSelected.replace("Huyện ", "");
+            huyenType = "huyện";
+        } else if (huyenSelected.startsWith("Thành phố ")) {
+            huyenName = huyenSelected.replace("Thành phố ", "");
+            huyenType = "thành phố";
+        }
+
+        let xaName = xaSelected;
+        let xaType = "xã";
+        if (xaSelected.startsWith("Xã ")) {
+            xaName = xaSelected.replace("Xã ", "");
+            xaType = "xã";
+        } else if (xaSelected.startsWith("Phường ")) {
+            xaName = xaSelected.replace("Phường ", "");
+            xaType = "phường";
+        } else if (xaSelected.startsWith("Thị trấn ")) {
+            xaName = xaSelected.replace("Thị trấn ", "");
+            xaType = "thị trấn";
+        }
+
+        const postData = {
+            val1: year,
+            val2: monthSino,
+            val3: daySino,
+            val4: noiCung,
+            val5: banCung,
+            val6: tuanCuuSino,
+            val7: val7,
+            val8: val8,
+            val9: val9,
+            huyenName: huyenName,
+            huyenType: huyenType,
+            xaName: xaName,
+            xaType: xaType,
+            filename: `Sớ cầu siêu ${filenameSuffix}`
+        };
+
+        loadingOverlay.classList.remove("hidden");
+
+        fetch("/generate_causieu", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(postData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Lỗi máy chủ khi tạo sớ cầu siêu");
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.style.display = "none";
+            a.href = url;
+            a.download = `Sớ cầu siêu ${filenameSuffix}.docx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        })
+        .catch(error => {
+            console.error(error);
+            alert("Đã xảy ra lỗi khi tạo sớ: " + error.message);
+        })
+        .finally(() => {
+            loadingOverlay.classList.add("hidden");
+        });
+    });
+
+    // Run initial calculation on page load
+    runRecalculation();
+});

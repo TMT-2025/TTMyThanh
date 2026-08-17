@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tính Lịch Tuần Cửu - Tiểu Tường - Đại Tường</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>Tính Ngày Tuần Cửu & Tường</h1>
+            <p class="subtitle">Ứng dụng lập lịch nghi lễ Tuần Cửu, Tiểu Tường và Đại Tường theo Phật giáo Cao Đài</p>
+        </header>
+
+        <div class="app-grid">
+            <!-- Left Panel: Inputs Form -->
+            <section class="card form-card">
+                <h2 class="card-title">Thông tin người quá cố</h2>
+                <form id="calculator-form" onsubmit="return false;">
+                    
+                    <div class="form-row" style="grid-template-columns: 2.5fr 1fr;">
+                        <div class="form-group">
+                            <label for="hoTen">Họ và tên người mất <span class="required">*</span></label>
+                            <input type="text" id="hoTen" placeholder="Nhập đầy đủ họ và tên" required value="Nguyễn Văn A">
+                        </div>
+                        <div class="form-group">
+                            <label for="gioiTinh">Giới tính</label>
+                            <select id="gioiTinh">
+                                <option value="Nam" selected>Nam</option>
+                                <option value="Nữ">Nữ</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="sinhNam">Sinh năm (Dương lịch)</label>
+                            <select id="sinhNam"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="tieuDeXung">Cách gọi tuổi mất</label>
+                            <select id="tieuDeXung">
+                                <option value="Hưởng dương">Hưởng dương (Dưới 61t)</option>
+                                <option value="Hưởng linh">Hưởng linh (Đồng nhi/Trẻ)</option>
+                                <option value="Hưởng thọ">Hưởng thọ (61t - 70t)</option>
+                                <option value="Hưởng hạ thọ">Hưởng hạ thọ (61t - 70t)</option>
+                                <option value="Hưởng trung thọ">Hưởng trung thọ (71t - 80t)</option>
+                                <option value="Hưởng thượng thọ">Hưởng thượng thọ (81t - 90t)</option>
+                                <option value="Hưởng mạo">Hưởng mạo (91t - 100t)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phamDao">Phẩm đạo</label>
+                            <select id="phamDao">
+                                <option value="Đạo hữu" selected>Đạo hữu</option>
+                                <option value="Chức việc">Chức việc</option>
+                                <option value="Lễ Sanh">Lễ Sanh</option>
+                                <option value="Giáo hữu">Giáo hữu</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gioMat">Giờ mất</label>
+                            <select id="gioMat">
+                                <option value="Tý">Tý (23g - 1g)</option>
+                                <option value="Sửu">Sửu (1g - 3g)</option>
+                                <option value="Dần">Dần (3g - 5g)</option>
+                                <option value="Mẹo">Mẹo (5g - 7g)</option>
+                                <option value="Thìn">Thìn (7g - 9g)</option>
+                                <option value="Tỵ">Tỵ (9g - 11g)</option>
+                                <option value="Ngọ" selected>Ngọ (11g - 13g)</option>
+                                <option value="Mùi">Mùi (13g - 15g)</option>
+                                <option value="Thân">Thân (15g - 17g)</option>
+                                <option value="Dậu">Dậu (17g - 19g)</option>
+                                <option value="Tuất">Tuất (19g - 21g)</option>
+                                <option value="Hợi">Hợi (21g - 23g)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tuổi Âm lịch & Năm sinh ÂL</label>
+                        <div class="age-display-box" id="age-display">--</div>
+                    </div>
+
+                    <fieldset class="lunar-date-fieldset" style="margin-top: 1rem; border-color: var(--border-color);">
+                        <legend style="color: var(--text-secondary); font-size: 0.95rem; font-weight: 600; padding: 0 0.5rem;">Nơi sinh (Tỉnh Bến Tre)</legend>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="noiSinhHuyen">Quận/Huyện</label>
+                                <select id="noiSinhHuyen"></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="noiSinhXa">Phường/Xã</label>
+                                <select id="noiSinhXa"></select>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="lunar-date-fieldset">
+                        <legend>Ngày Qui Vị / Qui Liễu (Âm Lịch)</legend>
+                        
+                        <div class="lunar-inputs">
+                            <div class="form-group">
+                                <label for="ngayMatAl">Ngày</label>
+                                <select id="ngayMatAl"></select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="thangMatAl">Tháng</label>
+                                <select id="thangMatAl"></select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="namMatAl">Năm (ÂL)</label>
+                                <select id="namMatAl"></select>
+                            </div>
+                        </div>
+
+                        <div class="form-checkbox-group">
+                            <input type="checkbox" id="thangMatAlNhuan">
+                            <label for="thangMatAlNhuan">Đây là tháng nhuận</label>
+                        </div>
+                    </fieldset>
+                    
+                    <div class="solar-equivalent-info">
+                        <span class="info-label">Dương lịch tương ứng:</span>
+                        <strong id="solar-equivalent-date">--/--/----</strong>
+                    </div>
+
+                    <button type="button" id="btn-export" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="String 12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Xuất file Kết quả Word (KetQuaTuanCuu)
+                    </button>
+
+                    <!-- Sớ Cầu Siêu Section -->
+                    <fieldset class="lunar-date-fieldset" style="margin-top: 1.5rem; border-color: var(--accent-color);">
+                        <legend style="color: var(--accent-color); font-weight: bold; padding: 0 0.5rem;">Tạo Sớ Cầu Siêu (CAU SIEU-2026)</legend>
+                        
+                        <div class="form-group">
+                            <label for="soTuanCuu">Tuần cửu cúng sớ</label>
+                            <select id="soTuanCuu">
+                                <option value="Nhứt cửu (Khai Cửu)">Nhứt cửu (Khai Cửu)</option>
+                                <option value="Nhị cửu">Nhị cửu</option>
+                                <option value="Tam cửu">Tam cửu</option>
+                                <option value="Tứ cửu">Tứ cửu</option>
+                                <option value="Ngũ cửu">Ngũ cửu</option>
+                                <option value="Lục cửu">Lục cửu</option>
+                                <option value="Thất cửu">Thất cửu</option>
+                                <option value="Bát cửu">Bát cửu</option>
+                                <option value="Cửu cửu (Chung cửu)">Cửu cửu (Chung cửu)</option>
+                                <option value="Tiểu tường (tròn 1 năm)">Tiểu tường</option>
+                                <option value="Đại tường (tròn 2 năm)">Đại tường</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="noiCung">Nơi cúng cửu</label>
+                                <select id="noiCung">
+                                    <option value="Thánh Thất" selected>Thánh Thất</option>
+                                    <option value="Gia Đường">Gia Đường</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="banCung">Bàn cúng</label>
+                                <select id="banCung">
+                                    <option value="Điện Tiền" selected>Điện Tiền</option>
+                                    <option value="Thiên Bàn">Thiên Bàn</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="button" id="btn-export-causieu" class="btn btn-accent" style="width: 100%; margin-top: 0.5rem;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Tạo sớ cầu siêu (.docx)
+                        </button>
+                    </fieldset>
+                </form>
+            </section>
+
+            <!-- Right Panel: Live Preview Table -->
+            <section class="card preview-card">
+                <div class="preview-header">
+                    <h2 class="card-title">Xem trước bảng tính lịch</h2>
+                    <span class="badge" id="preview-title-badge">Đạo hữu : Nguyễn Văn A</span>
+                </div>
+                
+                <div class="preview-details">
+                    <p><strong>Ngày Qui Vị:</strong> Ngày <span id="lblNgayAl">--</span> tháng <span id="lblThangAl">--</span> năm <span id="lblNamAl">----</span> (<span id="lblCanChiAl">----</span>) , <span id="lblGioMat">----</span> thời.</p>
+                    <p><strong>Nhằm ngày:</strong> <span id="lblNgayDl">--</span> tháng <span id="lblThangDl">--</span> năm <span id="lblNamDl">----</span> (DL)</p>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="preview-table">
+                        <thead>
+                            <tr>
+                                <th>Tuần cửu / Tường</th>
+                                <th>Thứ</th>
+                                <th>Ngày, tháng, năm (ÂL)</th>
+                                <th>Ngày, tháng, năm (DL)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="preview-table-body">
+                            <!-- Rows will be injected by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+    
+    <!-- Loading overlay -->
+    <div id="loading-overlay" class="overlay hidden">
+        <div class="spinner-container">
+            <div class="spinner"></div>
+            <p>Đang tạo tài liệu Word...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/calendar.js"></script>
+    <script src="/static/app.js"></script>
+</body>
+</html>

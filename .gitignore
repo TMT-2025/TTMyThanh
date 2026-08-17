@@ -1,0 +1,15 @@
+# Ignore MS Word temporary files
+~$*
+~*
+
+# Ignore temporary outputs
+*tạm thời.docx
+scratch_*
+Sớ cầu siêu tam cửu.docx
+
+# Ignore Python cache and virtualenv
+__pycache__/
+*.pyc
+.venv/
+env/
+.vercel/
