@@ -301,5 +301,161 @@ def generate_causieu():
         print("Error generating Sớ cầu siêu:", str(e))
         return jsonify({"error": str(e)}), 500
 
+@app.route('/generate_linhvi', methods=['POST'])
+def generate_linhvi():
+    try:
+        if request.is_json:
+            data = request.json
+        else:
+            data = request.form
+            
+        gioiTinh = data.get('gioiTinh', 'Nam')
+        val1a = data.get('val1a', '')
+        val1b = data.get('val1b', '')
+        val2a = data.get('val2a', 'Bến')
+        val2b = data.get('val2b', 'Tre')
+        val3a = data.get('val3a', '')
+        val3b = data.get('val3b', '')
+        val4a = data.get('val4a', '')
+        val4b = data.get('val4b', '')
+        val5a = data.get('val5a', '')
+        val5b = data.get('val5b', '')
+        val6 = data.get('val6', '')
+        val7 = data.get('val7', '')
+        val8 = data.get('val8', '')
+        val9 = data.get('val9', '')
+        val10 = data.get('val10', '')
+        wordThap = data.get('wordThap', 'Thập')
+        val11a = data.get('val11a', '')
+        val11b = data.get('val11b', '')
+        val12 = data.get('val12', '')
+        val13a = data.get('val13a', '')
+        val13b = data.get('val13b', '')
+        val14 = data.get('val14', '')
+        val15a = data.get('val15a', '')
+        val15b = data.get('val15b', '')
+        
+        # Decide template path based on gender
+        if gioiTinh == 'Nữ':
+            template_name = "MAU LINH VI NU.docx"
+            filename_download = "Linh Vị Nữ"
+        else:
+            template_name = "MAU LINH VI NAM.docx"
+            filename_download = "Linh Vị Nam"
+            
+        template_linhvi_path = os.path.join(WORKSPACE, template_name)
+        doc = docx.Document(template_linhvi_path)
+        
+        replacements = {
+            "(1a)": val1a,
+            "(1b)": val1b,
+            "(2a)": val2a,
+            "(2b)": val2b,
+            "(3a)": val3a,
+            "(3b)": val3b,
+            "(4a)": val4a,
+            "(4b)": val4b,
+            "(5a)": val5a,
+            "(5b)": val5b,
+            "(6)": val6,
+            "(7)": val7,
+            "(8)": val8,
+            "(9)": val9,
+            "(10)": val10,
+            "THẬP": wordThap,
+            "(11a)": val11a,
+            "(11b)": val11b,
+            "(12)": val12,
+            "(13a)": val13a,
+            "(13b)": val13b,
+            "(14)": val14,
+            "(15a)": val15a,
+            "(15b)": val15b
+        }
+        
+        placeholder_sizes = {
+            "(1a)": 16, "(1b)": 16, "(2a)": 16, "(2b)": 16, "(3a)": 16, "(3b)": 16, "(4a)": 16, "(4b)": 16,
+            "(5a)": 22, "(5b)": 22, "(6)": 22, "(7)": 22, "(8)": 22, "(9)": 22, "(10)": 22, "THẬP": 22,
+            "(11a)": 15, "(11b)": 15, "(12)": 15, "(13a)": 15, "(13b)": 15, "(14)": 15, "(15a)": 15, "(15b)": 15
+        }
+        
+        # Collect all paragraphs including inside tables
+        all_paragraphs = list(doc.paragraphs)
+        for table in doc.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    all_paragraphs.extend(cell.paragraphs)
+                    
+        for p in all_paragraphs:
+            p_text = p.text
+            for placeholder, value in replacements.items():
+                if placeholder in p_text:
+                    base_size = placeholder_sizes.get(placeholder, 16)
+                    words = value.strip().split()
+                    if len(words) >= 2:
+                        if base_size == 22:
+                            base_size = 16
+                        elif base_size == 16:
+                            base_size = 12
+                        elif base_size == 15:
+                            base_size = 11
+                            
+                    start_char_idx = p_text.find(placeholder)
+                    end_char_idx = start_char_idx + len(placeholder)
+                    
+                    current_len = 0
+                    start_run_idx = -1
+                    end_run_idx = -1
+                    
+                    for r_idx, r in enumerate(p.runs):
+                        r_start = current_len
+                        r_end = current_len + len(r.text)
+                        current_len = r_end
+                        
+                        if r_start <= start_char_idx < r_end:
+                            start_run_idx = r_idx
+                        if r_start < end_char_idx <= r_end:
+                            end_run_idx = r_idx
+                            break
+                            
+                    if start_run_idx != -1 and end_run_idx != -1:
+                        if start_run_idx == end_run_idx:
+                            r = p.runs[start_run_idx]
+                            r.text = r.text.replace(placeholder, value)
+                            r.font.name = "Times New Roman"
+                            r.font.size = Pt(base_size)
+                            r.font.bold = True
+                            r.font.color.rgb = docx.shared.RGBColor(0, 0, 0)
+                        else:
+                            run_start_len = sum(len(p.runs[j].text) for j in range(start_run_idx))
+                            rel_start_idx = start_char_idx - run_start_len
+                            
+                            run_end_len = sum(len(p.runs[j].text) for j in range(end_run_idx))
+                            rel_end_idx = end_char_idx - run_end_len
+                            
+                            r_start = p.runs[start_run_idx]
+                            r_start.text = r_start.text[:rel_start_idx] + value
+                            r_start.font.name = "Times New Roman"
+                            r_start.font.size = Pt(base_size)
+                            r_start.font.bold = True
+                            r_start.font.color.rgb = docx.shared.RGBColor(0, 0, 0)
+                            
+                            for j in range(start_run_idx + 1, end_run_idx):
+                                p.runs[j].text = ""
+                                
+                            r_end = p.runs[end_run_idx]
+                            r_end.text = r_end.text[rel_end_idx:]
+                            
+                    p_text = p.text
+                    
+        temp_output_path = os.path.join(tempfile.gettempdir(), f"{filename_download}_tam_thoi.docx")
+        doc.save(temp_output_path)
+        
+        return send_file(temp_output_path, as_attachment=True, download_name=f"{filename_download}.docx")
+        
+    except Exception as e:
+        print("Error generating Linh Vị:", str(e))
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000, debug=True)

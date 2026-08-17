@@ -727,6 +727,231 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 1500);
     });
 
+    // Export Linh Vị handler
+    const btnExportLinhVi = document.getElementById("btn-export-linhvi");
+    btnExportLinhVi.addEventListener("click", () => {
+        if (!hoTenInput.value.trim()) {
+            alert("Vui lòng nhập họ tên người mất!");
+            hoTenInput.focus();
+            return;
+        }
+
+        if (!currentCalculation) {
+            alert("Vui lòng thực hiện tính toán lịch trước!");
+            return;
+        }
+
+        const nameVal = hoTenInput.value.trim();
+        const phamDao = phamDaoSelect.value;
+        const gioiTinh = gioiTinhSelect.value;
+        const nameParts = nameVal.split(/\s+/);
+        const lastName = nameParts[nameParts.length - 1] || "";
+        const firstName = nameParts[0] || "";
+
+        // (1a), (1b) split birth year can chi
+        const birthParts = currentBirthCanChi.split(/\s+/);
+        const val1a = birthParts[0] || "";
+        const val1b = birthParts[1] || "";
+
+        // (2a), (2b) birth province (Bến Tre is fixed)
+        const val2a = "Bến";
+        const val2b = "Tre";
+
+        // (3a), (3b) split birthplace district
+        const huyenSelected = noiSinhHuyenSelect.value;
+        let huyenName = huyenSelected.replace("Huyện ", "").replace("Thành phố ", "");
+        const huyenParts = huyenName.split(/\s+/);
+        let val3a = "";
+        let val3b = "";
+        if (huyenParts.length === 2) {
+            val3a = huyenParts[0];
+            val3b = huyenParts[1];
+        } else if (huyenParts.length === 3) {
+            val3a = huyenParts[0] + " " + huyenParts[1];
+            val3b = huyenParts[2];
+        } else {
+            val3a = huyenParts[0] || "";
+            val3b = "";
+        }
+
+        // (4a), (4b) split birthplace commune
+        const xaSelected = noiSinhXaSelect.value;
+        let xaName = xaSelected.replace("Xã ", "").replace("Phường ", "").replace("Thị trấn ", "");
+        const xaParts = xaName.split(/\s+/);
+        let val4a = "";
+        let val4b = "";
+        if (xaParts.length === 2) {
+            val4a = xaParts[0];
+            val4b = xaParts[1];
+        } else if (xaParts.length === 3) {
+            val4a = xaParts[0] + " " + xaParts[1];
+            val4b = xaParts[2];
+        } else if (xaParts.length === 4) {
+            val4a = xaParts[0] + " " + xaParts[1];
+            val4b = xaParts[2] + " " + xaParts[3];
+        } else {
+            val4a = xaParts[0] || "";
+            val4b = "";
+        }
+
+        // (5a), (5b) split pham dao
+        const phamParts = phamDao.split(/\s+/);
+        const val5a = phamParts[0] || "";
+        const val5b = phamParts[1] || "";
+
+        // (6) Họ
+        const val6 = firstName;
+
+        // (7) Tên
+        const val7 = lastName;
+
+        // (8) Tuổi term (Dương, Linh, Thọ, Hạ Thọ, Trung Thọ, Thượng Thọ, Mạo)
+        let val8 = "Thọ";
+        const term = currentAgeTerm.toLowerCase();
+        if (term.includes("dương")) val8 = "Dương";
+        else if (term.includes("linh")) val8 = "Linh";
+        else if (term.includes("trung thọ")) val8 = "Trung Thọ";
+        else if (term.includes("thượng thọ")) val8 = "Thượng Thọ";
+        else if (term.includes("hạ thọ")) val8 = "Hạ Thọ";
+        else if (term.includes("mạo")) val8 = "Mạo";
+        else if (term.includes("thọ")) val8 = "Thọ";
+
+        // (9), wordThap, (10) split age Hán Việt
+        const units = {
+            1: "Nhứt", 2: "Nhị", 3: "Tam", 4: "Tứ", 5: "Ngũ",
+            6: "Lục", 7: "Thất", 8: "Bát", 9: "Cửu"
+        };
+        let val9 = "";
+        let val10 = "";
+        let wordThap = "Thập";
+        
+        if (currentAge < 10) {
+            val9 = "";
+            wordThap = "";
+            val10 = units[currentAge] || "";
+        } else if (currentAge === 10) {
+            val9 = "";
+            wordThap = "Thập";
+            val10 = "";
+        } else if (currentAge < 20) {
+            val9 = "";
+            wordThap = "Thập";
+            val10 = units[currentAge - 10] || "";
+        } else {
+            const chuc = Math.floor(currentAge / 10);
+            const donVi = currentAge % 10;
+            val9 = units[chuc] || "";
+            wordThap = "Thập";
+            val10 = donVi === 0 ? "" : (units[donVi] || "");
+        }
+
+        // (11a), (11b) split death year can chi
+        const deathParts = currentCalculation.lunarYearCanChi.split(/\s+/);
+        const val11a = deathParts[0] || "";
+        const val11b = deathParts[1] || "";
+
+        // (12) month of death Hán Việt
+        const lMonthVal = parseInt(thangAlSelect.value);
+        const LUNAR_MONTH_LINHVI = {
+            1: "Chánh", 2: "Nhị", 3: "Tam", 4: "Tứ", 5: "Ngũ", 6: "Lục",
+            7: "Thất", 8: "Bát", 9: "Cửu", 10: "Thập", 11: "Thập Nhứt", 12: "Nhứt Thập Nhị"
+        };
+        let val12 = LUNAR_MONTH_LINHVI[lMonthVal] || lMonthVal;
+        if (nhuanCheckbox.checked) {
+            val12 = "Nhuận " + val12;
+        }
+
+        // (13a), (13b) split day of death Hán Việt
+        const lDayVal = parseInt(ngayAlSelect.value);
+        const LUNAR_DAY_SINO = {
+            1: "sơ nhất nhựt", 2: "sơ nhị nhựt", 3: "sơ tam nhựt", 4: "sơ tứ nhựt", 5: "sơ ngũ nhựt",
+            6: "sơ lục nhựt", 7: "sơ thất nhựt", 8: "sơ bát nhựt", 9: "sơ cửu nhựt", 10: "Thập nhựt",
+            11: "Thập nhứt nhựt", 12: "Thập nhị nhựt", 13: "Thập tam nhựt", 14: "Thập tứ nhựt", 15: "Thập ngũ nhựt",
+            16: "Thập lục nhựt", 17: "Thập thất nhựt", 18: "Thập bát nhựt", 19: "Thập cửu nhựt", 20: "Nhị thập nhựt",
+            21: "Nhị thập nhứt nhựt", 22: "Nhị thập nhị nhựt", 23: "Nhị thập tam nhựt", 24: "Nhị thập  tứ nhựt", 25: "Nhị thập ngũ nhựt",
+            26: "Nhị thập lục nhựt", 27: "Nhị thập thất nhựt", 28: "Nhị thập bát nhựt", 29: "Nhị thập cửu nhựt", 30: "Tam thập nhựt"
+        };
+        const daySinoFull = LUNAR_DAY_SINO[lDayVal] || `${lDayVal} nhựt`;
+        const dayText = daySinoFull.replace(/\s*nhựt\s*$/, "");
+        const dayParts = dayText.split(/\s+/);
+        let val13a = "";
+        let val13b = "";
+        if (dayParts.length === 1) {
+            val13a = dayParts[0];
+            val13b = "";
+        } else if (dayParts.length === 2) {
+            if (dayParts[1] === "thập") {
+                val13a = dayParts[0] + " " + dayParts[1];
+                val13b = "";
+            } else {
+                val13a = dayParts[0];
+                val13b = dayParts[1];
+            }
+        } else if (dayParts.length === 3) {
+            val13a = dayParts[0] + " " + dayParts[1];
+            val13b = dayParts[2];
+        }
+
+        // (14) hour of death
+        const val14 = gioMatSelect.value;
+
+        // (15a), (15b) split cúng commune
+        const cungXaSelected = soCungXaSelect.value;
+        let cungXaName = cungXaSelected.replace("Xã ", "").replace("Phường ", "");
+        const cungXaParts = cungXaName.split(/\s+/);
+        let val15a = "";
+        let val15b = "";
+        if (cungXaParts.length === 2) {
+            val15a = cungXaParts[0];
+            val15b = cungXaParts[1];
+        } else if (cungXaParts.length === 3) {
+            val15a = cungXaParts[0] + " " + cungXaParts[1];
+            val15b = cungXaParts[2];
+        } else if (cungXaParts.length === 4) {
+            val15a = cungXaParts[0] + " " + cungXaParts[1];
+            val15b = cungXaParts[2] + " " + cungXaParts[3];
+        } else {
+            val15a = cungXaParts[0] || "";
+            val15b = "";
+        }
+
+        const postData = {
+            gioiTinh: gioiTinh,
+            val1a: val1a,
+            val1b: val1b,
+            val2a: val2a,
+            val2b: val2b,
+            val3a: val3a,
+            val3b: val3b,
+            val4a: val4a,
+            val4b: val4b,
+            val5a: val5a,
+            val5b: val5b,
+            val6: val6,
+            val7: val7,
+            val8: val8,
+            val9: val9,
+            val10: val10,
+            wordThap: wordThap,
+            val11a: val11a,
+            val11b: val11b,
+            val12: val12,
+            val13a: val13a,
+            val13b: val13b,
+            val14: val14,
+            val15a: val15a,
+            val15b: val15b
+        };
+
+        loadingOverlay.classList.remove("hidden");
+
+        submitFormDownload("/generate_linhvi", postData);
+
+        setTimeout(() => {
+            loadingOverlay.classList.add("hidden");
+        }, 1500);
+    });
+
     // Run initial calculation on page load
     runRecalculation();
 });
