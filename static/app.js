@@ -544,37 +544,37 @@ document.addEventListener("DOMContentLoaded", () => {
         let filenameSuffix = "";
 
         if (selectedEvent.includes("Nhứt cửu")) {
-            tuanCuuSino = "nhứt cửu";
+            tuanCuuSino = "Nhứt cửu";
             filenameSuffix = "nhứt cửu";
         } else if (selectedEvent.includes("Nhị cửu")) {
-            tuanCuuSino = "nhị cửu";
+            tuanCuuSino = "Nhị cửu";
             filenameSuffix = "nhị cửu";
         } else if (selectedEvent.includes("Tam cửu")) {
-            tuanCuuSino = "tam cửu";
+            tuanCuuSino = "Tam cửu";
             filenameSuffix = "tam cửu";
         } else if (selectedEvent.includes("Tứ cửu")) {
-            tuanCuuSino = "tứ cửu";
+            tuanCuuSino = "Tứ cửu";
             filenameSuffix = "tứ cửu";
         } else if (selectedEvent.includes("Ngũ cửu")) {
-            tuanCuuSino = "ngũ cửu";
+            tuanCuuSino = "Ngũ cửu";
             filenameSuffix = "ngũ cửu";
         } else if (selectedEvent.includes("Lục cửu")) {
-            tuanCuuSino = "lục cửu";
+            tuanCuuSino = "Lục cửu";
             filenameSuffix = "lục cửu";
         } else if (selectedEvent.includes("Thất cửu")) {
-            tuanCuuSino = "thất cửu";
+            tuanCuuSino = "Thất cửu";
             filenameSuffix = "thất cửu";
         } else if (selectedEvent.includes("Bát cửu")) {
-            tuanCuuSino = "bát cửu";
+            tuanCuuSino = "Bát cửu";
             filenameSuffix = "bát cửu";
         } else if (selectedEvent.includes("Cửu cửu")) {
-            tuanCuuSino = "chung cửu";
+            tuanCuuSino = "Chung cửu";
             filenameSuffix = "chung cửu";
         } else if (selectedEvent.includes("Tiểu tường")) {
-            tuanCuuSino = "tiểu tường";
+            tuanCuuSino = "Tiểu tường";
             filenameSuffix = "Tiểu tường";
         } else if (selectedEvent.includes("Đại tường")) {
-            tuanCuuSino = "đại tường";
+            tuanCuuSino = "Đại tường";
             filenameSuffix = "Đại tường";
         }
 

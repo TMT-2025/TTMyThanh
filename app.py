@@ -229,6 +229,7 @@ def generate_causieu():
                         if start_run_idx == end_run_idx:
                             r = p.runs[start_run_idx]
                             r.text = r.text.replace(placeholder, value)
+                            r.font.name = "Times New Roman"
                             r.font.color.rgb = docx.shared.RGBColor(0, 0, 0)
                         else:
                             run_start_len = sum(len(p.runs[j].text) for j in range(start_run_idx))
@@ -239,6 +240,7 @@ def generate_causieu():
                             
                             r_start = p.runs[start_run_idx]
                             r_start.text = r_start.text[:rel_start_idx] + value
+                            r_start.font.name = "Times New Roman"
                             r_start.font.color.rgb = docx.shared.RGBColor(0, 0, 0)
                             
                             for j in range(start_run_idx + 1, end_run_idx):
@@ -253,6 +255,8 @@ def generate_causieu():
             for r in p6.runs:
                 if "xã" in r.text:
                     r.text = r.text.replace("xã", cungXaType)
+                    r.font.name = "Times New Roman"
+                    r.font.color.rgb = docx.shared.RGBColor(0, 0, 0)
 
         # Specific replacements in P16 for birthplace division types
         if len(doc.paragraphs) > 16:
@@ -260,8 +264,12 @@ def generate_causieu():
             for r in p16.runs:
                 if "huyện" in r.text:
                     r.text = r.text.replace("huyện", huyenType)
+                    r.font.name = "Times New Roman"
+                    r.font.color.rgb = docx.shared.RGBColor(0, 0, 0)
                 if "xã" in r.text:
                     r.text = r.text.replace("xã", xaType)
+                    r.font.name = "Times New Roman"
+                    r.font.color.rgb = docx.shared.RGBColor(0, 0, 0)
 
         temp_output_path = os.path.join(tempfile.gettempdir(), "Sớ cầu siêu tạm thời.docx")
         doc.save(temp_output_path)
