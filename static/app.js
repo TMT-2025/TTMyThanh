@@ -275,12 +275,12 @@ document.addEventListener("DOMContentLoaded", () => {
         namAlSelect.appendChild(opt);
     }
 
-    // Birth Years (from 1900 to 2080, default to 1966)
+    // Birth Years (from 1900 to 2080, default to 1945)
     for (let y = 1900; y <= 2080; y++) {
         const opt = document.createElement("option");
         opt.value = y;
         opt.textContent = `${y} (${CaoDaiCalendar.getCanChiYear(y)})`;
-        if (y === 1966) opt.selected = true;
+        if (y === 1945) opt.selected = true;
         sinhNamSelect.appendChild(opt);
     }
 
