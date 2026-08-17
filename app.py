@@ -1,6 +1,7 @@
 import os
 from flask import Flask, request, render_template, send_file, jsonify
 import docx
+import tempfile
 from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
@@ -8,7 +9,7 @@ app = Flask(__name__, template_folder='templates', static_folder='static')
 
 WORKSPACE = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_PATH = os.path.join(WORKSPACE, "BANG TUAN CUU 2.docx")
-OUTPUT_PATH = os.path.join(WORKSPACE, "KetQuaTuanCuu.docx")
+OUTPUT_PATH = os.path.join(tempfile.gettempdir(), "KetQuaTuanCuu.docx")
 
 def set_cell_text_and_style(cell, text, font_name="Times New Roman", font_size=Pt(16), bold=False, align=WD_ALIGN_PARAGRAPH.CENTER):
     p = cell.paragraphs[0]
@@ -248,7 +249,7 @@ def generate_causieu():
                 if "xã" in r.text:
                     r.text = r.text.replace("xã", xaType)
 
-        temp_output_path = os.path.join(WORKSPACE, "Sớ cầu siêu tạm thời.docx")
+        temp_output_path = os.path.join(tempfile.gettempdir(), "Sớ cầu siêu tạm thời.docx")
         doc.save(temp_output_path)
         
         return send_file(temp_output_path, as_attachment=True, download_name=f"{filename}.docx")
