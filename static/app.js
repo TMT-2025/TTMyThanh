@@ -226,6 +226,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnExport = document.getElementById("btn-export");
     const loadingOverlay = document.getElementById("loading-overlay");
 
+    // Global Sino-Vietnamese Age Translation
+    function toSinoVietnamese(num) {
+        const units = {
+            1: "Nhứt", 2: "Nhị", 3: "Tam", 4: "Tứ", 5: "Ngũ",
+            6: "Lục", 7: "Thất", 8: "Bát", 9: "Cửu"
+        };
+        if (num < 10) return units[num] || "";
+        if (num === 10) return "Thập";
+        if (num < 20) return "Thập " + units[num - 10];
+        if (num < 100) {
+            const ten = Math.floor(num / 10);
+            const unit = num % 10;
+            const tenStr = units[ten] + " Thập";
+            return unit === 0 ? tenStr : tenStr + " " + units[unit];
+        }
+        if (num === 100) return "Bá";
+        if (num < 110) return "Bá " + units[num % 10];
+        return num.toString();
+    }
+
     // Initialize Dropdowns
     // Days 1 to 30
     for (let d = 1; d <= 30; d++) {
@@ -404,6 +424,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
             previewTableBody.appendChild(tr);
         });
+        
+        // Update active preview tab reactively
+        if (typeof updateActiveTabPreview === "function") {
+            updateActiveTabPreview();
+        }
     }
 
     // Set up Event Listeners
@@ -616,24 +641,7 @@ document.addEventListener("DOMContentLoaded", () => {
             val7 = ` ………………..${nameVal}`;
         }
 
-        function toSinoVietnamese(num) {
-            const units = {
-                1: "Nhứt", 2: "Nhị", 3: "Tam", 4: "Tứ", 5: "Ngũ",
-                6: "Lục", 7: "Thất", 8: "Bát", 9: "Cửu"
-            };
-            if (num < 10) return units[num] || "";
-            if (num === 10) return "Thập";
-            if (num < 20) return "Thập " + units[num - 10];
-            if (num < 100) {
-                const ten = Math.floor(num / 10);
-                const unit = num % 10;
-                const tenStr = units[ten] + " Thập";
-                return unit === 0 ? tenStr : tenStr + " " + units[unit];
-            }
-            if (num === 100) return "Bá";
-            if (num < 110) return "Bá " + units[num % 10];
-            return num.toString();
-        }
+
 
         const val8 = nameVal;
         const val9 = toSinoVietnamese(currentAge);
@@ -950,6 +958,470 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => {
             loadingOverlay.classList.add("hidden");
         }, 1500);
+    });
+
+    // Render Sớ Cầu Siêu HTML Preview
+    function renderCauSieuPreview() {
+        if (!currentCalculation) return;
+
+        const nameVal = hoTenInput.value.trim() || "CHƯA NHẬP HỌ TÊN";
+        const phamDao = phamDaoSelect.value;
+        const gioiTinh = gioiTinhSelect.value;
+        const nameParts = nameVal.split(/\s+/);
+        const lastName = nameParts[nameParts.length - 1] || "";
+
+        // (1) Year
+        const lYearVal = currentCalculation.lunarYearCanChi;
+
+        // (2) Month
+        const lMonthVal = parseInt(thangAlSelect.value);
+        const LUNAR_MONTH_SINO = {
+            1: "Chánh ngoạt", 2: "Nhị ngoạt", 3: "Tam ngoạt", 4: "Tứ ngoạt", 5: "Ngũ ngoạt",
+            6: "Lục ngoạt", 7: "Thất ngoạt", 8: "Bát ngoạt", 9: "Cửu ngoạt", 10: "Thập ngoạt",
+            11: "Thập nhứt ngoạt", 12: "Nhứt thập nhị ngoạt"
+        };
+        let monthSino = LUNAR_MONTH_SINO[lMonthVal] || `${lMonthVal} ngoạt`;
+        if (nhuanCheckbox.checked) {
+            monthSino = "Nhuận " + monthSino;
+        }
+
+        // (3) Day
+        const lDayVal = parseInt(ngayAlSelect.value);
+        const LUNAR_DAY_SINO = {
+            1: "sơ nhất nhựt", 2: "sơ nhị nhựt", 3: "sơ tam nhựt", 4: "sơ tứ nhựt", 5: "sơ ngũ nhựt",
+            6: "sơ lục nhựt", 7: "sơ thất nhựt", 8: "sơ bát nhựt", 9: "sơ cửu nhựt", 10: "Thập nhựt",
+            11: "Thập nhứt nhựt", 12: "Thập nhị nhựt", 13: "Thập tam nhựt", 14: "Thập tứ nhựt", 15: "Thập ngũ nhựt",
+            16: "Thập lục nhựt", 17: "Thập thất nhựt", 18: "Thập bát nhựt", 19: "Thập cửu nhựt", 20: "Nhị thập nhựt",
+            21: "Nhị thập nhứt nhựt", 22: "Nhị thập nhị nhựt", 23: "Nhị thập tam nhựt", 24: "Nhị thập  tứ nhựt", 25: "Nhị thập ngũ nhựt",
+            26: "Nhị thập lục nhựt", 27: "Nhị thập thất nhựt", 28: "Nhị thập bát nhựt", 29: "Nhị thập cửu nhựt", 30: "Tam thập nhựt"
+        };
+        const daySino = LUNAR_DAY_SINO[lDayVal] || `${lDayVal} nhựt`;
+
+        // (4) Nơi cúng
+        const noiCung = noiCungSelect.value;
+
+        // (5) Bàn cúng
+        const banCung = banCungSelect.value;
+
+        // (6) Tuần cửu
+        const currentTuanCuuSelect = document.getElementById("tuanCuuSelect");
+        const val6Raw = currentTuanCuuSelect ? currentTuanCuuSelect.value : "Tam cửu";
+        const val6 = val6Raw.charAt(0).toUpperCase() + val6Raw.slice(1);
+
+        // (7) Phẩm đạo formatting
+        let val7 = "";
+        if (phamDao === "Đạo hữu") {
+            val7 = nameVal;
+        } else if (phamDao === "Lễ Sanh" && gioiTinh === "Nữ") {
+            val7 = `Hương ${lastName}`;
+        } else if (phamDao === "Lễ Sanh" && gioiTinh === "Nam") {
+            val7 = `Lễ Sanh……….${lastName} Thanh`;
+        } else if (phamDao === "Chức việc") {
+            val7 = ` ………………..${nameVal}`;
+        }
+
+        // (8) Họ tên
+        const val8 = nameVal;
+
+        // (9) Tuổi Hán Việt
+        const val9 = toSinoVietnamese(currentAge);
+
+        // (10) Cúng xã
+        const cungXaSelected = soCungXaSelect.value;
+        let cungXaName = cungXaSelected.replace("Xã ", "").replace("Phường ", "");
+        const cungXaType = cungXaSelected.includes("Phường") ? "phường" : "xã";
+
+        // (11) Birthplace district
+        const huyenSelected = noiSinhHuyenSelect.value;
+        const huyenType = huyenSelected.includes("Thành phố") ? "thành phố" : "huyện";
+        let huyenName = huyenSelected.replace("Huyện ", "").replace("Thành phố ", "");
+
+        // (12) Birthplace commune
+        const xaSelected = noiSinhXaSelect.value;
+        const xaType = xaSelected.includes("Phường") ? "phường" : (xaSelected.includes("Thị trấn") ? "thị trấn" : "xã");
+        let xaName = xaSelected.replace("Xã ", "").replace("Phường ", "").replace("Thị trấn ", "");
+
+        // (13) Year of death Can Chi
+        const deathYear = currentCalculation.lunarYearCanChi;
+
+        // (14) Month of death Hán Việt
+        const deathMonthMap = {
+            1: "Chánh", 2: "Nhị", 3: "Tam", 4: "Tứ", 5: "Ngũ", 6: "Lục",
+            7: "Thất", 8: "Bát", 9: "Cửu", 10: "Thập", 11: "Thập nhứt", 12: "Thập nhị"
+        };
+        let deathMonth = deathMonthMap[lMonthVal] || String(lMonthVal);
+        if (nhuanCheckbox.checked) {
+            deathMonth = "Nhuận " + deathMonth;
+        }
+
+        // (15) Day of death Hán Việt
+        const daySinoFull = LUNAR_DAY_SINO[lDayVal] || `${lDayVal} nhựt`;
+        const deathDay = daySinoFull.replace(/\s*nhựt\s*$/, "");
+
+        // (16) Hour of death
+        const deathHour = gioMatSelect.value;
+
+        const html = `
+            <p class="center-text">ĐẠI ĐẠO TAM KỲ PHỔ ĐỘ</p>
+            <p class="center-text">Đệ Bá Nhứt Niên</p>
+            <p class="center-text">TAM GIÁO QUI NGUYÊN, NGŨ CHI HIỆP NHỨT</p>
+            <p class="center-text" style="font-weight: bold; margin-top: 1.5rem;">THỜI DUY</p>
+            <p>Thiên vận <span class="highlight-val">${lYearVal.toUpperCase()}</span> niên <span class="highlight-val">${monthSino.toUpperCase()}</span>, <span class="highlight-val">${daySino.toUpperCase()}</span> Ngọ thời. Hiện tại Việt Nam Quốc, Bến Tre Tỉnh, <span class="highlight-val">${cungXaName.toUpperCase()}</span> ${cungXaType}, Cư trụ <span class="highlight-val">${noiCung.toUpperCase()}</span> Chi Trung.</p>
+            <p>Kim Hữu Đệ tử thọ Thiên ân <span class="highlight-val">${phamDao.toUpperCase()}</span>, cộng đồng chư Chức sắc hiệp giữ Thiện Nam Tín Nữ đẳng, lãnh đái Hiếu quyến quì tại <span class="highlight-val">${banCung.toUpperCase()}</span> thành tâm trình tấu.</p>
+            <p class="center-text" style="font-weight: bold; margin-top: 1.5rem;">HUỲNH KIM KHUYẾT NỘI</p>
+            <p class="center-text" style="font-weight: bold;">HUYỀN KHUNG CAO THƯỢNG ĐẾ NGỌC HOÀNG ĐẠI THIÊN TÔN</p>
+            <p class="center-text">Viết: Cao Đài Tiên Ông Đại Bồ Tát Ma Ha Tát</p>
+            <p class="center-text">TAM KỲ PHỔ ĐỘ TAM TRẤN OAI NGHI</p>
+            <p class="center-text">Thường Cư Nam Hải Quan Âm Như Lai</p>
+            <p class="center-text">Lý Đại Tiên Trưởng Thái Bạch Kim Tinh</p>
+            <p class="center-text">Hiệp Thiên Đại Đế Quan Thánh Đế Quân</p>
+            <p class="center-text">Chư Phật Tiên Thánh Thần Liên Đài Chi Hạ</p>
+            <p>Kim vì <span class="highlight-val">${val8.toUpperCase()}</span> bổn mạng ư <span class="highlight-val">${val9.toUpperCase()}</span> tuế thọ sanh tại Bến Tre Tỉnh <span class="highlight-val">${huyenName.toUpperCase()}</span> ${huyenType} <span class="highlight-val">${xaName.toUpperCase()}</span> ${xaType} hạnh ngộ Tam Kỳ giáo hóa dĩ qui giác lộ chơn truyền bất hạnh ư <span class="highlight-val">${deathYear.toUpperCase()}</span> niên <span class="highlight-val">${deathMonth.toUpperCase()}</span> ngoạt <span class="highlight-val">${deathDay.toUpperCase()}</span> nhựt <span class="highlight-val">${deathHour.toUpperCase()}</span> thời. Khí thế mạng chung kim chí <span class="highlight-val">${val6.toUpperCase()}</span> Chi Tuần.</p>
+            <p>Tư thỉnh cầu chư Chức sắc hiệp giữ Thiện Nam Tín Nữ đẳng, nghiêm thiết Đàn tràng hương, đăng, hoa, trà, quả thanh chước vi nghi, thành tâm phụng hiến khẩn cầu siêu độ.</p>
+            <p style="font-weight: bold; text-indent: 0; margin-top: 1.5rem;">PHỤC VỌNG</p>
+            <p>Vô trung Từ Phụ phát hạ thâm ân xá giữ linh hồn <span class="highlight-val">${val7.toUpperCase()}</span> đắc thoát ly u khổ, siêu thăng thượng giới tự tại tiêu diêu.</p>
+            <p>Thiên phong giữ thiện tín đẳng.</p>
+            <p class="center-text" style="font-weight: bold; margin-top: 1.5rem;">THIỆT TRIÊM</p>
+            <p class="center-text">Thiên ân bất thăng khẩn khất chi chí cẩn biểu khấu bái</p>
+            <p style="text-align: center; text-indent: 0; white-space: pre; font-family: monospace; margin-top: 1.5rem;">            THƯỢNG TẤU                    DĨ VĂN</p>
+        `;
+        document.getElementById("causieu-preview-text").innerHTML = html;
+        document.getElementById("causieu-event-badge").innerText = val6;
+    }
+
+    // Render Linh Vị HTML Preview
+    function renderLinhViPreview() {
+        if (!currentCalculation) return;
+
+        const nameVal = hoTenInput.value.trim() || "CHƯA NHẬP HỌ TÊN";
+        const phamDao = phamDaoSelect.value;
+        const gioiTinh = gioiTinhSelect.value;
+        const nameParts = nameVal.split(/\s+/);
+        const lastName = nameParts[nameParts.length - 1] || "";
+        const firstName = nameParts[0] || "";
+
+        // (1a), (1b) split birth year can chi
+        const birthParts = currentBirthCanChi.split(/\s+/);
+        const val1a = birthParts[0] || "";
+        const val1b = birthParts[1] || "";
+
+        // (2a), (2b) birth province (Bến Tre is fixed)
+        const val2a = "Bến";
+        const val2b = "Tre";
+
+        // (3a), (3b) split birthplace district
+        const huyenSelected = noiSinhHuyenSelect.value;
+        let huyenName = huyenSelected.replace("Huyện ", "").replace("Thành phố ", "");
+        const huyenParts = huyenName.split(/\s+/);
+        let val3a = "";
+        let val3b = "";
+        if (huyenParts.length === 2) {
+            val3a = huyenParts[0];
+            val3b = huyenParts[1];
+        } else if (huyenParts.length === 3) {
+            val3a = huyenParts[0] + " " + huyenParts[1];
+            val3b = huyenParts[2];
+        } else {
+            val3a = huyenParts[0] || "";
+            val3b = "";
+        }
+
+        // (4a), (4b) split birthplace commune
+        const xaSelected = noiSinhXaSelect.value;
+        let xaName = xaSelected.replace("Xã ", "").replace("Phường ", "").replace("Thị trấn ", "");
+        const xaParts = xaName.split(/\s+/);
+        let val4a = "";
+        let val4b = "";
+        if (xaParts.length === 2) {
+            val4a = xaParts[0];
+            val4b = xaParts[1];
+        } else if (xaParts.length === 3) {
+            val4a = xaParts[0] + " " + xaParts[1];
+            val4b = xaParts[2];
+        } else if (xaParts.length === 4) {
+            val4a = xaParts[0] + " " + xaParts[1];
+            val4b = xaParts[2] + " " + xaParts[3];
+        } else {
+            val4a = xaParts[0] || "";
+            val4b = "";
+        }
+
+        // (5a), (5b) split pham dao
+        const phamParts = phamDao.split(/\s+/);
+        const val5a = phamParts[0] || "";
+        const val5b = phamParts[1] || "";
+
+        // (6) Họ
+        const val6 = firstName;
+
+        // (7) Tên
+        const val7 = lastName;
+
+        // (8) Tuổi term (Dương, Linh, Thọ, Hạ Thọ, Trung Thọ, Thượng Thọ, Mạo)
+        let val8 = "Thọ";
+        const term = currentAgeTerm.toLowerCase();
+        if (term.includes("dương")) val8 = "Dương";
+        else if (term.includes("linh")) val8 = "Linh";
+        else if (term.includes("trung thọ")) val8 = "Trung Thọ";
+        else if (term.includes("thượng thọ")) val8 = "Thượng Thọ";
+        else if (term.includes("hạ thọ")) val8 = "Hạ Thọ";
+        else if (term.includes("mạo")) val8 = "Mạo";
+        else if (term.includes("thọ")) val8 = "Thọ";
+
+        // (9), wordThap, (10) split age Hán Việt
+        const units = {
+            1: "Nhứt", 2: "Nhị", 3: "Tam", 4: "Tứ", 5: "Ngũ",
+            6: "Lục", 7: "Thất", 8: "Bát", 9: "Cửu"
+        };
+        let val9 = "";
+        let val10 = "";
+        let wordThap = "Thập";
+        
+        if (currentAge < 10) {
+            val9 = "";
+            wordThap = "";
+            val10 = units[currentAge] || "";
+        } else if (currentAge === 10) {
+            val9 = "";
+            wordThap = "Thập";
+            val10 = "";
+        } else if (currentAge < 20) {
+            val9 = "";
+            wordThap = "Thập";
+            val10 = units[currentAge - 10] || "";
+        } else {
+            const chuc = Math.floor(currentAge / 10);
+            const donVi = currentAge % 10;
+            val9 = units[chuc] || "";
+            wordThap = "Thập";
+            val10 = donVi === 0 ? "" : (units[donVi] || "");
+        }
+
+        // (11a), (11b) split death year can chi
+        const deathParts = currentCalculation.lunarYearCanChi.split(/\s+/);
+        const val11a = deathParts[0] || "";
+        const val11b = deathParts[1] || "";
+
+        // (12) month of death Hán Việt
+        const lMonthVal = parseInt(thangAlSelect.value);
+        const LUNAR_MONTH_LINHVI = {
+            1: "Chánh", 2: "Nhị", 3: "Tam", 4: "Tứ", 5: "Ngũ", 6: "Lục",
+            7: "Thất", 8: "Bát", 9: "Cửu", 10: "Thập", 11: "Thập Nhứt", 12: "Nhứt Thập Nhị"
+        };
+        let val12 = LUNAR_MONTH_LINHVI[lMonthVal] || lMonthVal;
+        if (nhuanCheckbox.checked) {
+            val12 = "Nhuận " + val12;
+        }
+
+        // (13a), (13b) split day of death Hán Việt
+        const lDayVal = parseInt(ngayAlSelect.value);
+        const LUNAR_DAY_SINO = {
+            1: "sơ nhất nhựt", 2: "sơ nhị nhựt", 3: "sơ tam nhựt", 4: "sơ tứ nhựt", 5: "sơ ngũ nhựt",
+            6: "sơ lục nhựt", 7: "sơ thất nhựt", 8: "sơ bát nhựt", 9: "sơ cửu nhựt", 10: "Thập nhựt",
+            11: "Thập nhứt nhựt", 12: "Thập nhị nhựt", 13: "Thập tam nhựt", 14: "Thập tứ nhựt", 15: "Thập ngũ nhựt",
+            16: "Thập lục nhựt", 17: "Thập thất nhựt", 18: "Thập bát nhựt", 19: "Thập cửu nhựt", 20: "Nhị thập nhựt",
+            21: "Nhị thập nhứt nhựt", 22: "Nhị thập nhị nhựt", 23: "Nhị thập tam nhựt", 24: "Nhị thập  tứ nhựt", 25: "Nhị thập ngũ nhựt",
+            26: "Nhị thập lục nhựt", 27: "Nhị thập thất nhựt", 28: "Nhị thập bát nhựt", 29: "Nhị thập cửu nhựt", 30: "Tam thập nhựt"
+        };
+        const daySinoFull = LUNAR_DAY_SINO[lDayVal] || `${lDayVal} nhựt`;
+        const dayText = daySinoFull.replace(/\s*nhựt\s*$/, "");
+        const dayParts = dayText.split(/\s+/);
+        let val13a = "";
+        let val13b = "";
+        if (dayParts.length === 1) {
+            val13a = dayParts[0];
+            val13b = "";
+        } else if (dayParts.length === 2) {
+            if (dayParts[1] === "thập") {
+                val13a = dayParts[0] + " " + dayParts[1];
+                val13b = "";
+            } else {
+                val13a = dayParts[0];
+                val13b = dayParts[1];
+            }
+        } else if (dayParts.length === 3) {
+            val13a = dayParts[0] + " " + dayParts[1];
+            val13b = dayParts[2];
+        }
+
+        // (14) hour of death
+        const val14 = gioMatSelect.value;
+
+        // (15a), (15b) split cúng commune
+        const cungXaSelected = soCungXaSelect.value;
+        let cungXaName = cungXaSelected.replace("Xã ", "").replace("Phường ", "");
+        const cungXaParts = cungXaName.split(/\s+/);
+        let val15a = "";
+        let val15b = "";
+        if (cungXaParts.length === 2) {
+            val15a = cungXaParts[0];
+            val15b = cungXaParts[1];
+        } else if (cungXaParts.length === 3) {
+            val15a = cungXaParts[0] + " " + cungXaParts[1];
+            val15b = cungXaParts[2];
+        } else if (cungXaParts.length === 4) {
+            val15a = cungXaParts[0] + " " + cungXaParts[1];
+            val15b = cungXaParts[2] + " " + cungXaParts[3];
+        } else {
+            val15a = cungXaParts[0] || "";
+            val15b = "";
+        }
+
+        function wordSpan(txt, isHigh = true) {
+            if (!txt) return "";
+            const isSmall = txt.length > 3 || txt.includes(" ");
+            return `<span class="linhvi-word ${isSmall ? 'small-font' : ''} ${isHigh ? 'highlight-val' : ''}">${txt.toUpperCase()}</span>`;
+        }
+
+        function staticSpan(txt) {
+            return `<span class="linhvi-word">${txt.toUpperCase()}</span>`;
+        }
+
+        let col1Html = `
+            ${staticSpan("SANH")}
+            ${staticSpan("Ư")}
+            ${wordSpan(val1a)}
+            ${wordSpan(val1b)}
+            ${staticSpan("NIÊN")}
+            ${staticSpan("CANH")}
+            ${gioiTinh === "Nữ" ? wordSpan(val2a) : staticSpan("BẾN")}
+            ${gioiTinh === "Nữ" ? wordSpan(val2b) : staticSpan("TRE")}
+            ${staticSpan("TỈNH")}
+            ${wordSpan(val3a)}
+            ${wordSpan(val3b)}
+            ${staticSpan("HUYỆN")}
+            ${wordSpan(val4a)}
+            ${wordSpan(val4b)}
+            ${staticSpan("XÃ")}
+        `;
+
+        let col2Html = `
+            ${staticSpan("PHỤNG")}
+            ${staticSpan("THỈNH")}
+            ${staticSpan("VONG")}
+            ${staticSpan("LINH")}
+            ${wordSpan(val5a)}
+            ${wordSpan(val5b)}
+            ${staticSpan("TÁNH")}
+            ${wordSpan(val6)}
+            ${staticSpan(gioiTinh === "Nữ" ? "HIỆU" : "TỰ")}
+            ${wordSpan(val7)}
+            ${staticSpan("HƯỞNG")}
+            ${wordSpan(val8)}
+            ${wordSpan(val9)}
+            ${wordThap ? wordSpan(wordThap) : ""}
+            ${wordSpan(val10)}
+            ${staticSpan("TUẾ")}
+            ${staticSpan("NHỨT")}
+            ${staticSpan("VỊ")}
+            ${staticSpan("THẦN")}
+            ${staticSpan("HỒN")}
+            ${staticSpan("TỌA VỊ")}
+        `;
+
+        let col3Html = `
+            ${staticSpan("TỬ")}
+            ${staticSpan("Ư")}
+            ${wordSpan(val11a)}
+            ${wordSpan(val11b)}
+            ${staticSpan("NIÊN")}
+            ${wordSpan(val12)}
+            ${staticSpan("NGOẠT")}
+            ${wordSpan(val13a)}
+            ${wordSpan(val13b)}
+            ${staticSpan("NHỰT")}
+            ${wordSpan(val14)}
+            ${staticSpan("THỜI")}
+            ${staticSpan("NHI")}
+            ${staticSpan("CHUNG")}
+            ${wordSpan(val15a)}
+            ${wordSpan(val15b)}
+            ${staticSpan("XÃ")}
+        `;
+
+        document.getElementById("linhvi-preview-tablet").innerHTML = `
+            <div class="linhvi-column">${col1Html}</div>
+            <div class="linhvi-column">${col2Html}</div>
+            <div class="linhvi-column">${col3Html}</div>
+        `;
+        document.getElementById("linhvi-gender-badge").innerText = `Linh Vị ${gioiTinh}`;
+    }
+
+    // Update active tab preview helper
+    function updateActiveTabPreview() {
+        const activeTab = document.querySelector(".tab-btn.active");
+        if (activeTab) {
+            const tabId = activeTab.getAttribute("data-tab");
+            if (tabId === "causieu") {
+                renderCauSieuPreview();
+            } else if (tabId === "linhvi") {
+                renderLinhViPreview();
+            }
+        }
+    }
+
+    // Tab buttons and click handlers
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const tabPanels = document.querySelectorAll(".tab-panel");
+
+    function switchTab(tabId) {
+        tabButtons.forEach(btn => {
+            if (btn.getAttribute("data-tab") === tabId) {
+                btn.classList.add("active");
+            } else {
+                btn.classList.remove("active");
+            }
+        });
+        tabPanels.forEach(panel => {
+            if (panel.id === `panel-${tabId}`) {
+                panel.classList.add("active");
+            } else {
+                panel.classList.remove("active");
+            }
+        });
+    }
+
+    tabButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const tabId = btn.getAttribute("data-tab");
+            switchTab(tabId);
+            if (tabId === "causieu") {
+                renderCauSieuPreview();
+            } else if (tabId === "linhvi") {
+                renderLinhViPreview();
+            }
+        });
+    });
+
+    const btnViewCauSieu = document.getElementById("btn-view-causieu");
+    const btnViewLinhVi = document.getElementById("btn-view-linhvi");
+
+    btnViewCauSieu.addEventListener("click", () => {
+        if (!hoTenInput.value.trim()) {
+            alert("Vui lòng nhập họ tên người mất!");
+            hoTenInput.focus();
+            return;
+        }
+        if (!currentCalculation) {
+            alert("Vui lòng thực hiện tính toán lịch trước!");
+            return;
+        }
+        switchTab("causieu");
+        renderCauSieuPreview();
+    });
+
+    btnViewLinhVi.addEventListener("click", () => {
+        if (!hoTenInput.value.trim()) {
+            alert("Vui lòng nhập họ tên người mất!");
+            hoTenInput.focus();
+            return;
+        }
+        if (!currentCalculation) {
+            alert("Vui lòng thực hiện tính toán lịch trước!");
+            return;
+        }
+        switchTab("linhvi");
+        renderLinhViPreview();
     });
 
     // Run initial calculation on page load
