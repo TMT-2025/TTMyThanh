@@ -492,8 +492,10 @@ document.addEventListener("DOMContentLoaded", () => {
             a.download = "KetQuaTuanCuu.docx";
             document.body.appendChild(a);
             a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
+            setTimeout(() => {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 250);
         })
         .catch(error => {
             console.error(error);
@@ -739,8 +741,10 @@ document.addEventListener("DOMContentLoaded", () => {
             a.download = `Sớ cầu siêu ${filenameSuffix}.docx`;
             document.body.appendChild(a);
             a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
+            setTimeout(() => {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 250);
         })
         .catch(error => {
             console.error(error);
