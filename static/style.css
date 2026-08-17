@@ -72,6 +72,18 @@ body {
     border-radius: 2px;
 }
 
+.title-yellow {
+    color: var(--caodai-yellow);
+}
+
+.title-blue {
+    color: var(--caodai-blue);
+}
+
+.title-red {
+    color: var(--caodai-red);
+}
+
 .app-header .subtitle {
     color: var(--text-secondary);
     font-size: 1.05rem;
