@@ -3,6 +3,19 @@
  * Manages UI interactions, live updates, and DOCX export requests
  */
 
+const BTRE_SAU_SAT_NHAP = [
+  "Xã Phú Túc", "Xã Giao Long", "Xã Tiên Thủy", "Xã Tân Phú", "Xã Phú Phụng",
+  "Xã Chợ Lách", "Xã Vĩnh Thành", "Xã Hưng Khánh Trung", "Xã Phước Mỹ Trung",
+  "Xã Tân Thành Bình", "Xã Nhuận Phú Tân", "Xã Đồng Khởi", "Xã Mỏ Cày",
+  "Xã Thành Thới", "Xã An Định", "Xã Hương Mỹ", "Xã Đại Điền", "Xã Quới Điền",
+  "Xã Thạnh Phú", "Xã An Qui", "Xã Thạnh Hải", "Xã Thạnh Phong", "Xã Tân Thủy",
+  "Xã Bảo Thạnh", "Xã Ba Tri", "Xã Tân Xuân", "Xã Mỹ Chánh Hòa", "Xã An Ngãi Trung",
+  "Xã An Hiệp", "Xã Hưng Nhượng", "Xã Giồng Trôm", "Xã Tân Hào", "Xã Phước Long",
+  "Xã Lương Phú", "Xã Châu Hoà", "Xã Lương Hoà", "Xã Thới Thuận", "Xã Thạnh Phước",
+  "Xã Bình Đại", "Xã Thạnh Trị", "Xã Lộc Thuận", "Xã Châu Hưng", "Xã Phú Thuận",
+  "Phường An Hội", "Phường Phú Khương", "Phường Bến Tre", "Phường Sơn Đông", "Phường Phú Tân"
+];
+
 const BTRE_DATA = {
   "Thành phố Bến Tre": [
     "Phường Phú Khương",
@@ -194,6 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const soTuanCuuSelect = document.getElementById("soTuanCuu");
     const noiCungSelect = document.getElementById("noiCung");
     const banCungSelect = document.getElementById("banCung");
+    const soCungXaSelect = document.getElementById("soCungXa");
     const btnExportCauSieu = document.getElementById("btn-export-causieu");
     
     // Preview Labels
@@ -281,6 +295,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Initial population for Xã nơi sinh
     updateNoiSinhXa("Xã Mỹ Thạnh");
+
+    // Populate SoCungXa from BTRE_SAU_SAT_NHAP
+    BTRE_SAU_SAT_NHAP.forEach(xa => {
+        const opt = document.createElement("option");
+        opt.value = xa;
+        opt.textContent = xa;
+        if (xa === "Xã Lương Phú") {
+            opt.selected = true;
+        }
+        soCungXaSelect.appendChild(opt);
+    });
 
     // Recalculate function
     let currentCalculation = null;
@@ -398,6 +423,7 @@ document.addEventListener("DOMContentLoaded", () => {
         runRecalculation();
     });
     noiSinhXaSelect.addEventListener("change", runRecalculation);
+    soCungXaSelect.addEventListener("change", runRecalculation);
 
     // Export DOCX handler
     btnExport.addEventListener("click", () => {
@@ -616,6 +642,36 @@ document.addEventListener("DOMContentLoaded", () => {
             xaType = "thị trấn";
         }
 
+        // Cúng location commune details after merger
+        const cungXaSelected = soCungXaSelect.value;
+        let cungXaName = cungXaSelected;
+        let cungXaType = "xã";
+        if (cungXaSelected.startsWith("Xã ")) {
+            cungXaName = cungXaSelected.replace("Xã ", "");
+            cungXaType = "xã";
+        } else if (cungXaSelected.startsWith("Phường ")) {
+            cungXaName = cungXaSelected.replace("Phường ", "");
+            cungXaType = "phường";
+        }
+
+        // Time of death Sino calculations
+        const lMonthVal = parseInt(thangAlSelect.value);
+        const LUNAR_MONTH_NUM_SINO = {
+            1: "Chánh", 2: "Nhị", 3: "Tam", 4: "Tứ", 5: "Ngũ", 6: "Lục",
+            7: "Thất", 8: "Bát", 9: "Cửu", 10: "Thập", 11: "Thập Nhứt", 12: "Thập Nhị"
+        };
+        let val14 = LUNAR_MONTH_NUM_SINO[lMonthVal] || lMonthVal;
+        if (nhuanCheckbox.checked) {
+            val14 = "Nhuận " + val14;
+        }
+
+        const lDayVal = parseInt(ngayAlSelect.value);
+        const daySinoFull = LUNAR_DAY_SINO[lDayVal] || `${lDayVal} nhựt`;
+        const val15 = daySinoFull.replace(/\s*nhựt\s*$/, "");
+
+        const val16 = gioMatSelect.value;
+        const val13 = currentCalculation.lunarYearCanChi;
+
         const postData = {
             val1: year,
             val2: monthSino,
@@ -626,10 +682,16 @@ document.addEventListener("DOMContentLoaded", () => {
             val7: val7,
             val8: val8,
             val9: val9,
-            huyenName: huyenName,
+            val10: cungXaName,
+            cungXaType: cungXaType,
+            val11: huyenName,
             huyenType: huyenType,
-            xaName: xaName,
+            val12: xaName,
             xaType: xaType,
+            val13: val13,
+            val14: val14,
+            val15: val15,
+            val16: val16,
             filename: `Sớ cầu siêu ${filenameSuffix}`
         };
 

@@ -165,10 +165,16 @@ def generate_causieu():
         val7 = data.get('val7', '')
         val8 = data.get('val8', '')
         val9 = data.get('val9', '')
-        huyenName = data.get('huyenName', 'Giồng Trôm')
+        val10 = data.get('val10', '')
+        cungXaType = data.get('cungXaType', 'xã')
+        val11 = data.get('val11', '')
         huyenType = data.get('huyenType', 'huyện')
-        xaName = data.get('xaName', 'Mỹ Thạnh')
+        val12 = data.get('val12', '')
         xaType = data.get('xaType', 'xã')
+        val13 = data.get('val13', '')
+        val14 = data.get('val14', '')
+        val15 = data.get('val15', '')
+        val16 = data.get('val16', '')
         filename = data.get('filename', 'Sớ cầu siêu')
         
         template_causieu_path = os.path.join(WORKSPACE, "CAU SIEU-2026.docx")
@@ -187,7 +193,14 @@ def generate_causieu():
             "(9)": val9,
             "Bát thập Cửu": val9,
             "Bát Thập Cửu": val9,
-            "Bát thập cửu": val9
+            "Bát thập cửu": val9,
+            "(10)": val10,
+            "(11)": val11,
+            "(12)": val12,
+            "(13)": val13,
+            "(14)": val14,
+            "(15)": val15,
+            "(16)": val16
         }
         
         for p in doc.paragraphs:
@@ -234,18 +247,19 @@ def generate_causieu():
                             r_end = p.runs[end_run_idx]
                             r_end.text = r_end.text[rel_end_idx:]
 
-        # Specific replacements in P16 for birthplace (Tỉnh Bến Tre is fixed, Huyện/TP and Xã/Phường are dynamic)
+        # Specific replacements in P6 for cúng commune/ward type (after sáp nhập)
+        if len(doc.paragraphs) > 6:
+            p6 = doc.paragraphs[6]
+            for r in p6.runs:
+                if "xã" in r.text:
+                    r.text = r.text.replace("xã", cungXaType)
+
+        # Specific replacements in P16 for birthplace division types
         if len(doc.paragraphs) > 16:
             p16 = doc.paragraphs[16]
             for r in p16.runs:
-                if "Giồng Trôm" in r.text:
-                    r.text = r.text.replace("Giồng Trôm", huyenName)
-                    r.font.bold = True
                 if "huyện" in r.text:
                     r.text = r.text.replace("huyện", huyenType)
-                if "Mỹ Thạnh" in r.text:
-                    r.text = r.text.replace("Mỹ Thạnh", xaName)
-                    r.font.bold = True
                 if "xã" in r.text:
                     r.text = r.text.replace("xã", xaType)
 
