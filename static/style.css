@@ -1,21 +1,26 @@
 /* 
  * CSS Styling for Cao Dai Funeral Calendar Calculator
- * Theme: Respectful, serene, premium Ivory & Brass
+ * Theme: Serene, spiritual, respectful. Soft Cream, Gold, Blue, and Red (Cao Dai Flag colors)
  */
 
 :root {
-    --bg-color: #f7f5f0; /* Soft Warm Cream / Sand */
+    --bg-color: #faf8f5; /* Serene warm paper/cream background */
     --card-bg: #ffffff;
-    --text-primary: #2d2a26; /* Deep charcoal with brown undertones */
-    --text-secondary: #6e675f; /* Charcoal muted */
-    --accent-color: #9c7b43; /* Brass / Muted Gold */
-    --accent-light: #f2ebd9; /* Pale Warm Yellow-Gold */
-    --border-color: #e5dec9;
-    --border-hover: #d2c8ae;
-    --shadow-subtle: 0 4px 20px rgba(45, 42, 38, 0.05);
-    --shadow-medium: 0 8px 30px rgba(45, 42, 38, 0.08);
+    --text-primary: #2b251f; /* Soft charcoal brown */
+    --text-secondary: #6e645a;
+    --accent-color: #a88238; /* Muted sacred gold */
+    --accent-light: #f7f1e3; /* Very soft yellow gold tint */
+    --border-color: #e3dac9;
+    --border-hover: #d1c5ad;
+    --shadow-subtle: 0 4px 24px rgba(43, 37, 31, 0.04);
+    --shadow-medium: 0 8px 32px rgba(43, 37, 31, 0.07);
     --font-header: 'Playfair Display', Georgia, serif;
     --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    
+    /* Cao Dai colors representing the three teachings */
+    --caodai-yellow: #d4af37; /* Buddhism */
+    --caodai-blue: #2c6cb0;   /* Taoism */
+    --caodai-red: #b22222;    /* Confucianism */
 }
 
 * {
@@ -45,28 +50,32 @@ body {
 
 .app-header h1 {
     font-family: var(--font-header);
-    font-size: 2.5rem;
-    font-weight: 700;
+    font-size: 2.6rem;
+    font-weight: 800;
     color: var(--text-primary);
     margin-bottom: 0.5rem;
     position: relative;
     display: inline-block;
-    padding-bottom: 0.75rem;
+    padding-bottom: 1.25rem;
+    letter-spacing: -0.02em;
 }
 
+/* Beautiful line under title representing the Cao Dai flag colors */
 .app-header h1::after {
     content: '';
     position: absolute;
     bottom: 0;
-    left: 25%;
-    width: 50%;
-    height: 1px;
-    background: var(--accent-color);
+    left: 15%;
+    width: 70%;
+    height: 3px;
+    background: linear-gradient(to right, var(--caodai-yellow) 33.3%, var(--caodai-blue) 33.3%, var(--caodai-blue) 66.6%, var(--caodai-red) 66.6%);
+    border-radius: 2px;
 }
 
 .app-header .subtitle {
     color: var(--text-secondary);
     font-size: 1.05rem;
+    margin-top: 0.5rem;
 }
 
 .app-grid {
@@ -78,7 +87,7 @@ body {
 
 @media (min-width: 992px) {
     .app-grid {
-        grid-template-columns: 420px 1fr;
+        grid-template-columns: 440px 1fr;
     }
 }
 
@@ -97,11 +106,12 @@ body {
 
 .card-title {
     font-family: var(--font-header);
-    font-size: 1.4rem;
+    font-size: 1.45rem;
     color: var(--text-primary);
     margin-bottom: 1.5rem;
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 0.5rem;
+    font-weight: 700;
 }
 
 /* Forms styling */
@@ -118,7 +128,7 @@ body {
 }
 
 .required {
-    color: #b05c5c;
+    color: var(--caodai-red);
     margin-left: 2px;
 }
 
@@ -134,14 +144,14 @@ select {
     border: 1px solid var(--border-color);
     border-radius: 8px;
     outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
 input[type="text"]:focus,
 input[type="number"]:focus,
 select:focus {
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(156, 123, 67, 0.15);
+    box-shadow: 0 0 0 3px rgba(168, 130, 56, 0.15);
     background-color: #ffffff;
 }
 
@@ -150,7 +160,7 @@ select:focus {
     padding: 0.75rem 1rem;
     font-family: var(--font-body);
     font-size: 0.95rem;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--accent-color);
     background-color: #faf9f6;
     border: 1px solid var(--border-color);
@@ -158,6 +168,7 @@ select:focus {
     height: 44px;
     display: flex;
     align-items: center;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .form-row {
@@ -171,12 +182,13 @@ select:focus {
     border-radius: 8px;
     padding: 1.25rem;
     margin-bottom: 1.5rem;
+    background-color: #fafaf8;
 }
 
 .lunar-date-fieldset legend {
     font-family: var(--font-header);
     font-size: 0.95rem;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--accent-color);
     padding: 0 0.5rem;
 }
@@ -223,11 +235,13 @@ select:focus {
 .solar-equivalent-info .info-label {
     font-size: 0.9rem;
     color: var(--text-secondary);
+    font-weight: 500;
 }
 
 .solar-equivalent-info strong {
     font-size: 1.05rem;
     color: var(--text-primary);
+    font-weight: 700;
 }
 
 /* Button styling */
@@ -240,35 +254,41 @@ select:focus {
     padding: 0.9rem 1.5rem;
     font-family: var(--font-body);
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 700;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.1s ease;
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
 }
 
+/* Primary Action Button (Taoist Blue - represent Heaven) */
 .btn-primary {
-    background-color: var(--accent-color);
+    background-color: var(--caodai-blue);
     color: #ffffff;
-    box-shadow: 0 4px 12px rgba(156, 123, 67, 0.2);
+    box-shadow: 0 4px 14px rgba(44, 108, 176, 0.25);
+    border: 1px solid #235891;
 }
 
 .btn-primary:hover {
-    background-color: #836737;
+    background-color: #20538a;
+    box-shadow: 0 6px 18px rgba(44, 108, 176, 0.35);
 }
 
 .btn-primary:active {
     transform: scale(0.98);
 }
 
+/* Sớ Cầu Siêu Action Button (Confucianist Red - represent Worship/Salvation) */
 .btn-accent {
-    background-color: var(--accent-light);
-    color: var(--accent-color);
-    border: 1px solid var(--border-color);
+    background-color: var(--caodai-red);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(178, 34, 34, 0.25);
+    border: 1px solid #8e1a1a;
 }
 
 .btn-accent:hover {
-    background-color: #f0e9dd;
+    background-color: #971a1a;
+    box-shadow: 0 6px 18px rgba(178, 34, 34, 0.35);
 }
 
 .btn-accent:active {
@@ -374,7 +394,7 @@ select:focus {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(45, 42, 38, 0.7);
+    background-color: rgba(43, 37, 31, 0.7);
     display: flex;
     justify-content: center;
     align-items: center;
