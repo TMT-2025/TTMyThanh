@@ -585,12 +585,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const lastName = nameParts[nameParts.length - 1] || "";
 
         let val7 = nameVal;
-        if (phamDao === "Lễ Sanh") {
+        if (phamDao === "Đạo hữu") {
+            val7 = nameVal;
+        } else if (phamDao === "Lễ Sanh") {
             if (gioiTinh === "Nữ") {
                 val7 = `Hương ${lastName}`;
             } else {
-                val7 = `………..${lastName} Thanh`;
+                val7 = `Lễ Sanh……….${lastName} Thanh`;
             }
+        } else if (phamDao === "Chức việc") {
+            val7 = ` ………………..${nameVal}`;
         }
 
         function toSinoVietnamese(num) {
