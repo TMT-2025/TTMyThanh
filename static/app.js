@@ -425,6 +425,23 @@ document.addEventListener("DOMContentLoaded", () => {
     noiSinhXaSelect.addEventListener("change", runRecalculation);
     soCungXaSelect.addEventListener("change", runRecalculation);
 
+    // Link Nơi cúng cửu and Bàn cúng
+    noiCungSelect.addEventListener("change", () => {
+        if (noiCungSelect.value === "Thánh Thất") {
+            banCungSelect.value = "Điện Tiền";
+        } else if (noiCungSelect.value === "Gia Đường") {
+            banCungSelect.value = "Thiên Bàn";
+        }
+    });
+
+    banCungSelect.addEventListener("change", () => {
+        if (banCungSelect.value === "Điện Tiền") {
+            noiCungSelect.value = "Thánh Thất";
+        } else if (banCungSelect.value === "Thiên Bàn") {
+            noiCungSelect.value = "Gia Đường";
+        }
+    });
+
     // Export DOCX handler
     btnExport.addEventListener("click", () => {
         if (!hoTenInput.value.trim()) {
