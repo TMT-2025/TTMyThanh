@@ -421,10 +421,10 @@ def generate_linhvi():
                     if start_run_idx != -1 and end_run_idx != -1:
                         if start_run_idx == end_run_idx:
                             r = p.runs[start_run_idx]
-                            r.text = r.text.replace(placeholder, value)
+                            r.text = r.text.replace(placeholder, value.upper())
                             r.font.name = "Times New Roman"
                             r.font.size = Pt(base_size)
-                            r.font.bold = True
+                            r.font.bold = False
                             r.font.color.rgb = docx.shared.RGBColor(0, 0, 0)
                         else:
                             run_start_len = sum(len(p.runs[j].text) for j in range(start_run_idx))
@@ -434,10 +434,10 @@ def generate_linhvi():
                             rel_end_idx = end_char_idx - run_end_len
                             
                             r_start = p.runs[start_run_idx]
-                            r_start.text = r_start.text[:rel_start_idx] + value
+                            r_start.text = r_start.text[:rel_start_idx] + value.upper()
                             r_start.font.name = "Times New Roman"
                             r_start.font.size = Pt(base_size)
-                            r_start.font.bold = True
+                            r_start.font.bold = False
                             r_start.font.color.rgb = docx.shared.RGBColor(0, 0, 0)
                             
                             for j in range(start_run_idx + 1, end_run_idx):
