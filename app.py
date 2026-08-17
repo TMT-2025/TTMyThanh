@@ -27,16 +27,34 @@ def index():
 @app.route('/generate', methods=['POST'])
 def generate():
     try:
-        data = request.json
+        if request.is_json:
+            data = request.json
+        else:
+            data = request.form
         hoTen = data.get('hoTen')
         phamDao = data.get('phamDao')
         gioMat = data.get('gioMat')
         ngayMatAl = data.get('ngayMatAl')
         ngayMatDl = data.get('ngayMatDl')
-        tuoiMat = data.get('tuoiMat')
+        
+        tuoiMat_raw = data.get('tuoiMat')
+        try:
+            tuoiMat = int(tuoiMat_raw) if tuoiMat_raw else 0
+        except ValueError:
+            tuoiMat = 0
+            
         namSinhAl = data.get('namSinhAl')
         tuoiTerm = data.get('tuoiTerm')
-        tableData = data.get('tableData')
+        
+        tableData_raw = data.get('tableData')
+        import json
+        if isinstance(tableData_raw, str):
+            try:
+                tableData = json.loads(tableData_raw)
+            except Exception:
+                tableData = []
+        else:
+            tableData = tableData_raw or []
         
         # Load document
         doc = docx.Document(TEMPLATE_PATH)
@@ -155,7 +173,10 @@ def generate():
 @app.route('/generate_causieu', methods=['POST'])
 def generate_causieu():
     try:
-        data = request.json
+        if request.is_json:
+            data = request.json
+        else:
+            data = request.form
         val1 = data.get('val1', '')
         val2 = data.get('val2', '')
         val3 = data.get('val3', '')

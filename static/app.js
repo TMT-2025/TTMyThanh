@@ -442,6 +442,35 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // Form submission helper for dynamic file downloads (fully compatible with mobile WebViews/Zalo/FB)
+    function submitFormDownload(actionUrl, postData) {
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = actionUrl;
+        form.style.display = "none";
+
+        for (const key in postData) {
+            if (postData.hasOwnProperty(key)) {
+                const input = document.createElement("input");
+                input.type = "hidden";
+                input.name = key;
+                if (typeof postData[key] === "object") {
+                    input.value = JSON.stringify(postData[key]);
+                } else {
+                    input.value = postData[key];
+                }
+                form.appendChild(input);
+            }
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+        
+        setTimeout(() => {
+            document.body.removeChild(form);
+        }, 1000);
+    }
+
     // Export DOCX handler
     btnExport.addEventListener("click", () => {
         if (!hoTenInput.value.trim()) {
@@ -470,40 +499,11 @@ document.addEventListener("DOMContentLoaded", () => {
             tableData: currentCalculation.table
         };
 
-        fetch("/generate", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(postData)
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Lỗi máy chủ khi tạo file Word");
-            }
-            return response.blob();
-        })
-        .then(blob => {
-            // Download file
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.style.display = "none";
-            a.href = url;
-            a.download = "KetQuaTuanCuu.docx";
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(() => {
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-            }, 250);
-        })
-        .catch(error => {
-            console.error(error);
-            alert("Đã xảy ra lỗi khi tạo file Word: " + error.message);
-        })
-        .finally(() => {
+        submitFormDownload("/generate", postData);
+
+        setTimeout(() => {
             loadingOverlay.classList.add("hidden");
-        });
+        }, 1500);
     });
 
     // Export Sớ Cầu Siêu handler
@@ -720,39 +720,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         loadingOverlay.classList.remove("hidden");
 
-        fetch("/generate_causieu", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(postData)
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Lỗi máy chủ khi tạo sớ cầu siêu");
-            }
-            return response.blob();
-        })
-        .then(blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.style.display = "none";
-            a.href = url;
-            a.download = `Sớ cầu siêu ${filenameSuffix}.docx`;
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(() => {
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-            }, 250);
-        })
-        .catch(error => {
-            console.error(error);
-            alert("Đã xảy ra lỗi khi tạo sớ: " + error.message);
-        })
-        .finally(() => {
+        submitFormDownload("/generate_causieu", postData);
+
+        setTimeout(() => {
             loadingOverlay.classList.add("hidden");
-        });
+        }, 1500);
     });
 
     // Run initial calculation on page load
